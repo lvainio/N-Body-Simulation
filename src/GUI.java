@@ -69,6 +69,8 @@ class GUI extends JFrame {
 
             // TODO: draw a line were the bodies has traveled?
 
+            // TODO: change size of body depending on z-value to fake 3d effect.
+
             g.setColor(Color.GREEN);
             g.drawOval(200, 200, hej, hej);
             g.fillOval(200, 200, hej, hej);
