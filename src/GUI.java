@@ -48,7 +48,7 @@ class GUI extends JFrame {
 
         // load background.
         try {
-            background = ImageIO.read(getClass().getResourceAsStream("images/background.jpg"));
+            background = ImageIO.read(getClass().getResourceAsStream("./images/background.jpg"));
         } catch(IOException e) {
             e.printStackTrace();
         }
@@ -77,14 +77,12 @@ class GUI extends JFrame {
      */
     class Panel extends JPanel {
         public void paint(Graphics g) {
-
-            // TODO: draw based on scale
-
+            double scale = 800.0 / 1_000_000_000.0; // TODO: right scale?
             g.drawImage(background, 0, 0, null);
             for (int i = 0; i < colors.length; i++) {
                 Body body = bodies.get(i);
-                int x = (int) body.getX(); // TODO: maybe do + radius / 2 
-                int y = (int) body.getY(); // TODO: maybe do + radius / 2 
+                int x = (int) (body.getX() * scale); 
+                int y = (int) (body.getY() * scale);
                 g.setColor(colors[i]);
                 g.fillOval(x, y, BODY_RADIUS, BODY_RADIUS);
             }

@@ -16,7 +16,7 @@ public class Sequential {
     private static boolean guiToggled = false;
 
     private final double G = 6.67e-11;
-    private final double DT = 0.1;
+    private final double DT = 100_000;
 
     private GUI gui;
     private Timer timer;
@@ -74,24 +74,22 @@ public class Sequential {
     private void simulate() {
         for (int i = 0; i < numSteps; i++) {
 
+
+
+            bodies.printBodies();
+
             if (guiToggled) {
                 gui.repaint();
             }
 
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
+            // try {
+            //     Thread.sleep(1000);
+            // } catch (InterruptedException e) {
 
-            }
-
-            bodies.printBodies();
+            // }
 
             calculateForces();
-            moveBodies();
-
-            System.out.println("hej");
-            
-            
+            moveBodies(); 
         }
     }
 
@@ -110,7 +108,7 @@ public class Sequential {
                 Body b2 = bodies.get(j);
 
                 distance = Math.sqrt(Math.pow(b1.getX()-b2.getX(), 2) + Math.pow(b1.getY()-b2.getY(), 2));
-                magnitude = (G * b1.getMass() * b2.getMass()) / Math.pow(distance, 2);
+                magnitude = (G * b1.getMass() * b2.getMass()) / (distance * distance);
                 dirX = b2.getX() - b1.getX();
                 dirY = b2.getY() - b2.getY();
 
@@ -120,7 +118,7 @@ public class Sequential {
                 b2.setFy(b2.getFy() - magnitude * dirY / distance);
             }
         }
-    }
+    }        
 
     /*
      * Calculates new velocity and position for each body.
@@ -129,13 +127,13 @@ public class Sequential {
         for (int i = 0; i < numBodies; i++) {
             Body b = bodies.get(i);
 
-            double dVx = b.getFx() / b.getMass() * DT;
-            double dVy = b.getFy() / b.getMass() * DT;
+            double dVx = (b.getFx() / b.getMass()) * DT;
+            double dVy = (b.getFy() / b.getMass()) * DT;
             double dPx = (b.getVx() + dVx / 2.0) * DT;
             double dPy = (b.getVy() + dVy / 2.0) * DT;
 
-            b.setVx(b.getX() + dVx);
-            b.setVy(b.getY() + dVy);
+            b.setVx(b.getVx() + dVx);
+            b.setVy(b.getVy() + dVy);
             b.setX(b.getX() + dPx);
             b.setY(b.getY() + dPy);
             b.setFx(0.0);

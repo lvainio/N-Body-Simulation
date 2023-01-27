@@ -1,9 +1,8 @@
 import java.util.Random;
 
 public class Data {
-    // private final double EARTH_MASS = 5.97e24;
-    private final double EARTH_MASS = 1.0;
-
+    private final double EARTH_MASS = 5.9722e24;
+    
     private Body[] bodies;
 
     /*
@@ -22,12 +21,12 @@ public class Data {
         rng.setSeed(System.nanoTime());
 
         for (int i = 0; i < bodies.length; i++) {
-            double x = rng.nextDouble() * 1000.0; // TODO: increase ALOT
-            double y = rng.nextDouble() * 1000.0; // TODO: increase ALOT
-            double vx = rng.nextDouble() * 1.0; // TODO: increase ALOT
-            double vy = rng.nextDouble() * 1.0; // TODO: increase ALOT
-            double fx = rng.nextDouble() * 1.0; // TODO: increase ALOT
-            double fy = rng.nextDouble() * 1.0; // TODO: increase ALOT
+            double x = rng.nextDouble() * 1_000_000_000.0; // TODO: increase ALOT
+            double y = rng.nextDouble() * 1_000_000_000.0; // TODO: increase ALOT
+            double vx = rng.nextDouble() * 0.0; // TODO: increase ALOT
+            double vy = rng.nextDouble() * 0.0; // TODO: increase ALOT
+            double fx = rng.nextDouble() * 0.0; // TODO: increase ALOT
+            double fy = rng.nextDouble() * 0.0; // TODO: increase ALOT
             double mass = EARTH_MASS;
 
             bodies[i] = new Body(x, y, vx, vy, fx, fy, mass);
