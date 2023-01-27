@@ -1,8 +1,14 @@
 import java.util.Random;
 
+// semi successful inputs parameters:
+//  - M=1, D=100 000, DT=1, v=rng*1-0.5
+//  - M=100, D=1 000 000, DT=1, v=rng*5-2-5
+//  - M=1000, -||-
+//  - M=1000, D= 1 000 000, DT=1, v=rng*25-12.5 (this one was nice)
+
 public class Data {
-    private final double MASS = 5.9722e24;
-    static final double DIAMETER = 1e15;
+    private final double MASS = 1000;
+    static final double DIAMETER = 1_000_000;
     
     private Body[] bodies;
 
@@ -22,17 +28,12 @@ public class Data {
         rng.setSeed(System.nanoTime());
 
         for (int i = 0; i < bodies.length; i++) {
-            double x = rng.nextDouble() * 1_000_000_000;
-            double y = rng.nextDouble() * 1_000_000_000; 
-
-            // TODO: randomize
-            double vx = rng.nextDouble() * 0.0; 
-            double vy = rng.nextDouble() * 0.0; 
-            double fx = rng.nextDouble() * 0.0; 
-            double fy = rng.nextDouble() * 0.0;
+            double x = rng.nextDouble() * DIAMETER;
+            double y = rng.nextDouble() * DIAMETER;
+            double vx = rng.nextDouble() * 25 - 12.5; 
+            double vy = rng.nextDouble() * 25 - 12.5; 
             double mass = MASS;
-
-            bodies[i] = new Body(x, y, vx, vy, fx, fy, mass);
+            bodies[i] = new Body(x, y, vx, vy, mass);
         }
     }
 
@@ -48,11 +49,5 @@ public class Data {
      */
     public int getNumBodies() {
         return bodies.length;
-    }
-
-    public void printBodies() {
-        for (Body body : bodies) {
-            System.out.println("x: " + body.getX() + ", y: " + body.getY() + "\n");
-        }
     }
 }

@@ -9,14 +9,12 @@
  */
 
 public class Sequential {
-    // TODO: final max variables? I.e. max bodies, max steps etc.
-
     private static int numBodies = 100;
     private static int numSteps = 100_000;
     private static boolean guiToggled = false;
 
     private final double G = 6.67e-11;
-    private final double DT = 10;
+    private final double DT = 1;
 
     private GUI gui;
     private Timer timer;
@@ -63,9 +61,15 @@ public class Sequential {
         if (guiToggled) {
             gui = new GUI("N-body problem: sequential", bodies);
         }
+
+        // time
+        timer = new Timer();
+        timer.start();
       
         // start simulation.
         simulate();
+
+        timer.stopAndPrint();
     }
 
     /*
@@ -76,10 +80,6 @@ public class Sequential {
             if (guiToggled) {
                 gui.repaint();
             }
-
-            bodies.printBodies();
-
-            
 
             calculateForces();
             moveBodies(); 

@@ -9,10 +9,10 @@ public class Body {
     private Force f;
     private double mass;
 
-    public Body(double x, double y, double vx, double vy, double fx, double fy, double mass) {
+    public Body(double x, double y, double vx, double vy, double mass) {
         p = new Point(x, y);
         v = new Velocity(vx, vy);
-        f = new Force(fx, fy);
+        f = new Force(0.0, 0.0);
         this.mass = mass;
     }
 

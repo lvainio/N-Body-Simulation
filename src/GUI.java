@@ -4,22 +4,20 @@
 
 import java.awt.Color;
 import java.awt.Graphics;
-
-
-import java.util.Random;
-
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import javax.swing.JFrame;
+import java.io.IOException;
+
 import javax.swing.JPanel;
+import javax.swing.JFrame;
+
+import java.util.Random;
 
 class GUI extends JFrame {
     private final int WIDTH = 800;
     private final int HEIGHT = 800;
-
-    private final int BODY_RADIUS = 10;
+    private final int RADIUS = 10;
 
     private JPanel panel;
     private BufferedImage background;
@@ -79,13 +77,13 @@ class GUI extends JFrame {
         public void paint(Graphics g) {
             g.drawImage(background, 0, 0, null);
 
-            double scale = 800.0 / 1_000_000_000;
+            double scale = 800.0 / Data.DIAMETER;
             for (int i = 0; i < colors.length; i++) {
                 Body body = bodies.get(i);
                 int x = (int) (body.getX() * scale); 
                 int y = (int) (body.getY() * scale);
                 g.setColor(colors[i]);
-                g.fillOval(x, y, BODY_RADIUS, BODY_RADIUS);
+                g.fillOval(x, y, RADIUS, RADIUS);
             }
             g.dispose();
         }
