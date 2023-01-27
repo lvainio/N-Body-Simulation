@@ -19,7 +19,7 @@ class GUI extends JFrame {
     private final int WIDTH = 800;
     private final int HEIGHT = 800;
 
-    private final int BODY_RADIUS = 20;
+    private final int BODY_RADIUS = 10;
 
     private JPanel panel;
     private BufferedImage background;
@@ -77,8 +77,9 @@ class GUI extends JFrame {
      */
     class Panel extends JPanel {
         public void paint(Graphics g) {
-            double scale = 800.0 / 1_000_000_000.0; // TODO: right scale?
             g.drawImage(background, 0, 0, null);
+
+            double scale = 800.0 / 1_000_000_000;
             for (int i = 0; i < colors.length; i++) {
                 Body body = bodies.get(i);
                 int x = (int) (body.getX() * scale); 

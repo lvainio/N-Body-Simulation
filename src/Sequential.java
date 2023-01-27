@@ -73,20 +73,13 @@ public class Sequential {
      */
     private void simulate() {
         for (int i = 0; i < numSteps; i++) {
-
-
-
-            bodies.printBodies();
-
             if (guiToggled) {
                 gui.repaint();
             }
 
-            // try {
-            //     Thread.sleep(1000);
-            // } catch (InterruptedException e) {
+            bodies.printBodies();
 
-            // }
+            
 
             calculateForces();
             moveBodies(); 
