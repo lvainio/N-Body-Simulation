@@ -16,7 +16,7 @@ public class Sequential {
     private static boolean guiToggled = false;
 
     private final double G = 6.67e-11;
-    private final double DT = 100_000;
+    private final double DT = 10;
 
     private GUI gui;
     private Timer timer;
@@ -110,7 +110,7 @@ public class Sequential {
                 distance = Math.sqrt(Math.pow(b1.getX()-b2.getX(), 2) + Math.pow(b1.getY()-b2.getY(), 2));
                 magnitude = (G * b1.getMass() * b2.getMass()) / (distance * distance);
                 dirX = b2.getX() - b1.getX();
-                dirY = b2.getY() - b2.getY();
+                dirY = b2.getY() - b1.getY();
 
                 b1.setFx(b1.getFx() + magnitude * dirX / distance);
                 b2.setFx(b2.getFx() - magnitude * dirX / distance);

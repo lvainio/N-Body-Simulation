@@ -24,7 +24,7 @@ public class Data {
             double x = rng.nextDouble() * 1_000_000_000.0; // TODO: increase ALOT
             double y = rng.nextDouble() * 1_000_000_000.0; // TODO: increase ALOT
             double vx = rng.nextDouble() * 0.0; // TODO: increase ALOT
-            double vy = rng.nextDouble() * 0.0; // TODO: increase ALOT
+            double vy = rng.nextDouble() * -1.0; // TODO: increase ALOT
             double fx = rng.nextDouble() * 0.0; // TODO: increase ALOT
             double fy = rng.nextDouble() * 0.0; // TODO: increase ALOT
             double mass = EARTH_MASS;
