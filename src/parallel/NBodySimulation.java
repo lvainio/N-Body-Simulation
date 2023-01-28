@@ -22,14 +22,13 @@ public class NBodySimulation {
     // Constants.
     static final double RADIUS = 500_000.0;
     private final double MASS = 100.0;
-    private final double G = 6.67e-4;
-    private final double DT = 1;
 
-    private GUI gui;
     private Random rng;
     private Timer timer;
 
     private Body[] bodies;
+
+    private int numWorkers = 20;
 
     /*
      * Read command line arguments and start simulation.
@@ -78,11 +77,6 @@ public class NBodySimulation {
             generateBodies();
         } else {
             generateBodiesDonut();
-        }
-
-        // init gui.
-        if (guiToggled) {
-            gui = new GUI("N-body problem: sequential", bodies, donutToggled);
         }
 
         // run simulation.
@@ -143,63 +137,23 @@ public class NBodySimulation {
     }
 
     /*
-     * Run the simulation for specified number of steps.
+     * Create workers and start simulation.
      */
     private void simulate() {
-        for (int i = 0; i < numSteps; i++) {
-            if (guiToggled) {
-                gui.repaint();
-            }
-            calculateForces();
-            moveBodies(); 
+        // Create threads.
+        Worker[] workers = new Worker[numWorkers]; 
+        for (int id = 0; id < numWorkers; id++) {
+            workers[id] = new Worker(bodies, id, numSteps, guiToggled, donutToggled);
+            workers[id].start();
         }
-    }
-
-    /*
-     * Calculates total force for every pair of bodies.
-     */
-    private void calculateForces() {
-        double distance;
-        double magnitude;
-        double dirX;
-        double dirY;
-
-        for (int i = 0; i < numBodies - 1; i++) {
-            for (int j = i + 1; j < numBodies; j++) {
-                Body b1 = bodies[i];
-                Body b2 = bodies[j];
-
-                distance = Math.sqrt(Math.pow(b1.getX()-b2.getX(), 2) + Math.pow(b1.getY()-b2.getY(), 2));
-                magnitude = (G * b1.getMass() * b2.getMass()) / (distance * distance);
-                dirX = b2.getX() - b1.getX();
-                dirY = b2.getY() - b1.getY();
-
-                b1.setFx(b1.getFx() + magnitude * dirX / distance);
-                b2.setFx(b2.getFx() - magnitude * dirX / distance);
-                b1.setFy(b1.getFy() + magnitude * dirY / distance);
-                b2.setFy(b2.getFy() - magnitude * dirY / distance);
+        // Join threads.
+        for (int id = 0; id < numWorkers; id++) {
+            try {
+                workers[id].join();
+            } catch (InterruptedException ie) {
+                ie.printStackTrace();
+                System.exit(1);
             }
-        }
-    }        
-
-    /*
-     * Calculates new velocity and position for each body.
-     */
-    private void moveBodies() {
-        for (int i = 0; i < numBodies; i++) {
-            Body b = bodies[i];
-
-            double dVx = (b.getFx() / b.getMass()) * DT;
-            double dVy = (b.getFy() / b.getMass()) * DT;
-            double dPx = (b.getVx() + dVx / 2.0) * DT;
-            double dPy = (b.getVy() + dVy / 2.0) * DT;
-
-            b.setVx(b.getVx() + dVx);
-            b.setVy(b.getVy() + dVy);
-            b.setX(b.getX() + dPx);
-            b.setY(b.getY() + dPy);
-            b.setFx(0.0);
-            b.setFy(0.0);
         }
     }
 }
