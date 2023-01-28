@@ -4,16 +4,14 @@
  */
 
 public class Worker extends Thread {
-
     // Constants.
+    private final int NUM_STEPS;
     private final double G = 6.67e-4;
     private final double DT = 1;
     
-    private Body[] bodies;
-    private int numBodies;
-
+    private int numWorkers;
     private int id;
-    private int numSteps;
+    private Body[] bodies;
 
     private GUI gui;
     private boolean guiToggled;
@@ -21,12 +19,12 @@ public class Worker extends Thread {
     /*
      * 
      */
-    public Worker(Body[] bodies, int id, int numSteps, boolean guiToggled, boolean donutToggled) {
+    public Worker(Body[] bodies, int id, int numWorkers, int numSteps, boolean guiToggled, boolean donutToggled) {
         this.bodies = bodies;
-        this.numBodies = bodies.length;
+        this.numWorkers = numWorkers;
         this.id = id;
         this.guiToggled = guiToggled;
-        this.numSteps = numSteps;
+        NUM_STEPS = numSteps;
         if (id == 0 && guiToggled) {
             gui = new GUI("N-body problem: parallel", bodies, donutToggled);
         }
@@ -37,14 +35,14 @@ public class Worker extends Thread {
      */
     @Override
     public void run() { // TODO: implement barrier.
-        for (int i = 0; i < numSteps; i++) {
+        for (int i = 0; i < NUM_STEPS; i++) {
             if (id == 0) { // TODO: remove
-                calculateForces(id);
+                calculateForces();
             }
             // TODO: force;
             // TODO: barrier;
             if (id == 0) { // TODO: remove
-                moveBodies(id);
+                moveBodies();
             }
             // TODO: move;
             if (id == 0 && guiToggled) {
@@ -57,14 +55,14 @@ public class Worker extends Thread {
     /*
      * Calculates total force for every pair of bodies.
      */
-    private void calculateForces(int w) { // TODO: split up work between worker threads
+    private void calculateForces() {
         double distance;
         double magnitude;
         double dirX;
         double dirY;
 
-        for (int i = 0; i < numBodies - 1; i++) {
-            for (int j = i + 1; j < numBodies; j++) {
+        for (int i = id; i < bodies.length - 1; i += numWorkers) {
+            for (int j = i + 1; j < bodies.length; j++) {
                 Body b1 = bodies[i];
                 Body b2 = bodies[j];
 
@@ -73,9 +71,10 @@ public class Worker extends Thread {
                 dirX = b2.getX() - b1.getX();
                 dirY = b2.getY() - b1.getY();
 
-                b1.setFx(b1.getFx() + magnitude * dirX / distance);
-                b2.setFx(b2.getFx() - magnitude * dirX / distance);
-                b1.setFy(b1.getFy() + magnitude * dirY / distance);
+                b1.setFx(b1.getFx() + magnitude * dirX / distance); // TODO: force vector.
+                b2.setFx(b2.getFx() - magnitude * dirX / distance); // TODO: have a force 2d array in this class and remove force from Body?.
+                b1.setFy(b1.getFy() + magnitude * dirY / distance); 
+                // TODO: otherwise have a Force vector in each body with a place for every thread.
                 b2.setFy(b2.getFy() - magnitude * dirY / distance);
             }
         }
@@ -84,8 +83,8 @@ public class Worker extends Thread {
     /*
      * Calculates new velocity and position for each body.
      */
-    private void moveBodies(int w) { // TODO: split up work between worker threads.
-        for (int i = 0; i < numBodies; i++) {
+    private void moveBodies() { // TODO: split up work between worker threads.
+        for (int i = 0; i < bodies.length; i++) {
             Body b = bodies[i];
 
             double dVx = (b.getFx() / b.getMass()) * DT;

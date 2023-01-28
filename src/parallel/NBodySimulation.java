@@ -85,7 +85,7 @@ public class NBodySimulation {
         // Create threads.
         Worker[] workers = new Worker[numWorkers]; 
         for (int id = 0; id < numWorkers; id++) {
-            workers[id] = new Worker(bodies, id, numSteps, guiToggled, donutToggled);
+            workers[id] = new Worker(bodies, id, numWorkers, numSteps, guiToggled, donutToggled);
             workers[id].start();
         }
         // Join threads.
