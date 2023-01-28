@@ -8,13 +8,11 @@
 public class Body {
     private Vector position;
     private Vector velocity;
-    private Vector force;
     private double mass;
 
     public Body(double x, double y, double vx, double vy, double mass) {
         position = new Vector(x, y);
         velocity = new Vector(vx, vy);
-        force = new Vector(0.0, 0.0);
         this.mass = mass;
     }
 
@@ -34,14 +32,6 @@ public class Body {
 
     public double getVy() {
         return velocity.getY();
-    }
-
-    public double getFx() {
-        return force.getX();
-    }
-
-    public double getFy() {
-        return force.getY();
     }
 
     public double getMass() {
@@ -65,13 +55,5 @@ public class Body {
 
     public void setVy(double vy) {
         velocity.setY(vy);
-    }
-
-    public void setFx(double fx) {
-        force.setX(fx);
-    }
-
-    public void setFy(double fy) {
-        force.setY(fy);
     }
 }

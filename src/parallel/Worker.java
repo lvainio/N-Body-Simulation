@@ -11,7 +11,9 @@ public class Worker extends Thread {
     
     private int numWorkers;
     private int id;
+
     private Body[] bodies;
+    private double[][] forces;
 
     private GUI gui;
     private boolean guiToggled;
@@ -25,6 +27,7 @@ public class Worker extends Thread {
         this.id = id;
         this.guiToggled = guiToggled;
         NUM_STEPS = numSteps;
+        forces = new double[numWorkers][bodies.length];
         if (id == 0 && guiToggled) {
             gui = new GUI("N-body problem: parallel", bodies, donutToggled);
         }
