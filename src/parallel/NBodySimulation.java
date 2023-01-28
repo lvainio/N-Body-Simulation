@@ -82,7 +82,21 @@ public class NBodySimulation {
         // run simulation.
         timer = new Timer();
         timer.start();
-        simulate();
+        // Create threads.
+        Worker[] workers = new Worker[numWorkers]; 
+        for (int id = 0; id < numWorkers; id++) {
+            workers[id] = new Worker(bodies, id, numSteps, guiToggled, donutToggled);
+            workers[id].start();
+        }
+        // Join threads.
+        for (int id = 0; id < numWorkers; id++) {
+            try {
+                workers[id].join();
+            } catch (InterruptedException ie) {
+                ie.printStackTrace();
+                System.exit(1);
+            }
+        }
         timer.stopAndPrint();
     }
 
@@ -134,26 +148,5 @@ public class NBodySimulation {
      */
     private Vector getOrthogonalVector(Vector vec) {
         return new Vector(vec.getY(), -vec.getX());
-    }
-
-    /*
-     * Create workers and start simulation.
-     */
-    private void simulate() {
-        // Create threads.
-        Worker[] workers = new Worker[numWorkers]; 
-        for (int id = 0; id < numWorkers; id++) {
-            workers[id] = new Worker(bodies, id, numSteps, guiToggled, donutToggled);
-            workers[id].start();
-        }
-        // Join threads.
-        for (int id = 0; id < numWorkers; id++) {
-            try {
-                workers[id].join();
-            } catch (InterruptedException ie) {
-                ie.printStackTrace();
-                System.exit(1);
-            }
-        }
     }
 }
