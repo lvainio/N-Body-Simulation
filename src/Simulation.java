@@ -1,24 +1,29 @@
 
-/*
+/**
  * Sequential implementation of the n-body problem.
  * 
  * Usage:
  *      compile: javac *.java
- *      execute: java Sequential <num_bodies> <num_steps> 
- *      graphic: java Sequential <num_bodies> <num_steps> -gui
+ *      execute: java Simulation <num_bodies> <num_steps> 
+ *      graphic: java Simulation <num_bodies> <num_steps> -gui
+ * 
+ * @author: Leo Vainio
  */
 
-public class Sequential {
+public class Simulation {
+    // Command line args.
     private static int numBodies = 100;
     private static int numSteps = 100_000;
     private static boolean guiToggled = false;
+    private static boolean donutToggled = false;
 
-    private final double G = 6.67e-11;
+    // Constants.
+    private final double G = 6.67e-4;
+    //private final double G = 6.67e-11;
     private final double DT = 1;
 
     private GUI gui;
     private Timer timer;
-
     private Data bodies;
 
     /*
@@ -38,6 +43,11 @@ public class Sequential {
                     guiToggled = true;
                 }
             }
+            if (args.length >= 4) {
+                if (args[2].equals("-donut")) {
+                    donutToggled = true;
+                }
+            }
         } catch (NumberFormatException nfe) {
             nfe.printStackTrace();
             System.exit(1);
@@ -47,13 +57,13 @@ public class Sequential {
         System.out.println("\t - " + numBodies + " bodies");
         System.out.println("\t - " + numSteps + " steps\n");
 
-        new Sequential();
+        new Simulation();
     }
 
      /*
      * Constructor for sequential.
      */
-    public Sequential() {
+    public Simulation() {
         // generate bodies.
         bodies = new Data(numBodies);
 
