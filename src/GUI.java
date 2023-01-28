@@ -22,19 +22,20 @@ class GUI extends JFrame {
     private JPanel panel;
     private BufferedImage background;
 
-    private Data bodies;
     private Color[] colors; 
+    
+    private Body[] bodies;
 
     /*
      * Constructor for GUI object.  
      */
-    public GUI(String title, Data bodies) {
+    public GUI(String title, Body[] bodies) {
         System.setProperty("sun.java2d.opengl", "true"); // Enable video acceleration.
 
         this.bodies = bodies;
 
         // generate colors for each body.
-        colors = new Color[bodies.getNumBodies()];
+        colors = new Color[bodies.length];
         Random rng = new Random();
         rng.setSeed(System.nanoTime());
         for (int i = 0; i < colors.length; i++) {
@@ -74,12 +75,14 @@ class GUI extends JFrame {
      * A simple nested class that handles drawing the bodies onto the canvas in each step.
      */
     class Panel extends JPanel {
+        // TODO: if donutToggled
+
         public void paint(Graphics g) {
             g.drawImage(background, 0, 0, null);
 
-            double scale = 800.0 / Data.DIAMETER;
+            double scale = 800.0 / (Simulation.RADIUS*2);
             for (int i = 0; i < colors.length; i++) {
-                Body body = bodies.get(i);
+                Body body = bodies[i];
                 int x = (int) (body.getX() * scale); 
                 int y = (int) (body.getY() * scale);
                 g.setColor(colors[i]);
