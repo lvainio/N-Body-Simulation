@@ -6,10 +6,6 @@
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.image.BufferedImage;
-
-import javax.imageio.ImageIO;
-import java.io.IOException;
 
 import javax.swing.JPanel;
 import javax.swing.JFrame;
@@ -17,12 +13,11 @@ import javax.swing.JFrame;
 import java.util.Random;
 
 class GUI extends JFrame {
-    private final int WIDTH = 800;
-    private final int HEIGHT = 800;
+    private final int FRAME_WIDTH = 800;
+    private final int FRAME_HEIGHT = 800;
     private final int RADIUS = 10;
 
     private JPanel panel;
-    private BufferedImage background;
 
     private Body[] bodies;
     private Color[] colors; 
@@ -48,17 +43,10 @@ class GUI extends JFrame {
             colors[i] = new Color(r, g, b);
         }
 
-        // load background.
-        try {
-            background = ImageIO.read(getClass().getResourceAsStream("./images/background.jpg"));
-        } catch(IOException e) {
-            e.printStackTrace();
-        }
-        
         // initialize frame.
         setTitle(title);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setBounds(100,0, WIDTH, HEIGHT);
+        setBounds(100,0, FRAME_WIDTH, FRAME_HEIGHT);
         setResizable(false);
         setVisible(true);
         panel = new Panel();
@@ -79,8 +67,11 @@ class GUI extends JFrame {
      */
     class Panel extends JPanel {
         public void paint(Graphics g) {
-            g.drawImage(background, 0, 0, null);
+            // draw background.
+            g.setColor(Color.BLACK);
+            g.fillRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
 
+            // draw bodies.
             double scale = 800.0 / (Simulation.RADIUS*2);
             int i = 0;
             if (donutToggled) {
