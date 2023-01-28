@@ -5,14 +5,14 @@ import java.util.Random;
  * 
  * Usage:
  *      compile: javac *.java
- *      execute: java Simulation <num_bodies> <num_steps> 
- *      graphic: java Simulation <num_bodies> <num_steps> -g
- *      donut: java Simulation <num_bodies> <num_steps> -g -d
+ *      execute: java NbodySimulation <num_bodies> <num_steps> 
+ *      graphic: java NBodySimulation <num_bodies> <num_steps> -g
+ *      donut: java NBodySimulation <num_bodies> <num_steps> -g -d
  * 
  * @author: Leo Vainio
  */
 
-public class Simulation {
+public class NBodySimulation {
     // Command line args (initialized with default values).
     private static int numBodies = 100;
     private static int numSteps = 100_000;
@@ -62,13 +62,13 @@ public class Simulation {
         System.out.println("\t - " + numBodies + " bodies");
         System.out.println("\t - " + numSteps + " steps\n");
 
-        new Simulation();
+        new NBodySimulation();
     }
 
      /*
      * Generate bodies, run simulation and time it.
      */
-    public Simulation() {
+    public NBodySimulation() {
         rng = new Random();
         rng.setSeed(System.nanoTime());
 

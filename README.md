@@ -6,11 +6,11 @@ compile: javac *.java (in any of the source folders)
 
 run: 
 
-- java Simulate
-- java Simulate <num_bodies>
-- java Simulate <num_bodies> <num_steps>
-- java Simulate <num_bodies> <num_steps> -g
-- java Simulate <num_bodies> <num_steps> -g -d
+- java NBodySimulation
+- java NBodySimulation <num_bodies>
+- java NBodySimulation <num_bodies> <num_steps>
+- java NBodySimulation <num_bodies> <num_steps> -g
+- java NBodySimulation <num_bodies> <num_steps> -g -d
 
 ## Settings:
 

@@ -72,12 +72,12 @@ class GUI extends JFrame {
             g.fillRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
 
             // draw bodies.
-            double scale = 800.0 / (Simulation.RADIUS*2);
+            double scale = 800.0 / (NBodySimulation.RADIUS*2);
             int i = 0;
             if (donutToggled) {
                 Body body = bodies[0];
                 g.setColor(colors[0]);
-                g.fillOval((int) (body.getX()*scale), (int) (body.getY()*scale), RADIUS*3, RADIUS*3);
+                g.fillOval((int) (body.getX()*scale), (int) (body.getY()*scale), RADIUS*2, RADIUS*2);
                 i = 1;
             }
             for (; i < colors.length; i++) {
