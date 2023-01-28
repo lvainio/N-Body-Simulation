@@ -23,17 +23,16 @@ public class Simulation {
     static final double RADIUS = 500_000.0;
     private final double MASS = 100.0;
     private final double G = 6.67e-4;
-    //private final double G = 6.67e-11;
     private final double DT = 1;
 
     private GUI gui;
-    private Timer timer;
-    
     private Random rng;
+    private Timer timer;
+
     private Body[] bodies;
 
     /*
-     * Main.
+     * Read command line arguments and start simulation.
      */
     public static void main(String[] args) {
         // Command line args
@@ -67,7 +66,7 @@ public class Simulation {
     }
 
      /*
-     * Constructor for sequential.
+     * Generate bodies, run simulation and time it.
      */
     public Simulation() {
         rng = new Random();
@@ -86,13 +85,10 @@ public class Simulation {
             gui = new GUI("N-body problem: sequential", bodies);
         }
 
-        // time
+        // run simulation.
         timer = new Timer();
         timer.start();
-      
-        // start simulation.
         simulate();
-
         timer.stopAndPrint();
     }
 
@@ -116,15 +112,15 @@ public class Simulation {
     private void generateBodiesDonut() {
         bodies[0] = new Body(RADIUS, RADIUS, 0.0, 0.0, 100000000000.0);
         for (int i = 1; i < bodies.length; i++) {
-            Vector vec = getRandomUnitVector();
+            Vector unit = getRandomUnitVector();
 
-            double r = (RADIUS * 0.5) + (RADIUS * 0.75 - RADIUS * 0.5) * rng.nextDouble();
-            double x = vec.x * r + RADIUS;
-            double y = vec.y * r + RADIUS;
+            double r = (RADIUS * 0.6) + (RADIUS * 0.8 - RADIUS * 0.6) * rng.nextDouble();
+            double x = unit.getX() * r + RADIUS;
+            double y = unit.getY() * r + RADIUS;
 
-            Vector vel = getOrthogonalVector(vec);
-            double vx = vel.x * 10.0;
-            double vy = vel.y * 10.0;
+            Vector vel = getOrthogonalVector(unit);
+            double vx = vel.getX() * 10.0;
+            double vy = vel.getY() * 10.0;
             
             double mass = MASS;
             bodies[i] = new Body(x, y, vx, vy, mass);
@@ -143,7 +139,7 @@ public class Simulation {
      * Returns a vector that is orthogonal to the input vector.
      */
     private Vector getOrthogonalVector(Vector vec) {
-        return new Vector(vec.y, -vec.x);
+        return new Vector(vec.getY(), -vec.getX());
     }
 
     /*

@@ -1,45 +1,47 @@
 
-/*
- * Simple body class to store information about a single body.
+/**
+ * This class stores information about a single body.
+ * 
+ * @author Leo Vainio
  */
 
 public class Body {
-    private Point p;
-    private Velocity v;
-    private Force f;
+    private Vector position;
+    private Vector velocity;
+    private Vector force;
     private double mass;
 
     public Body(double x, double y, double vx, double vy, double mass) {
-        p = new Point(x, y);
-        v = new Velocity(vx, vy);
-        f = new Force(0.0, 0.0);
+        position = new Vector(x, y);
+        velocity = new Vector(vx, vy);
+        force = new Vector(0.0, 0.0);
         this.mass = mass;
     }
 
     // ----- GETTERS ----- //
 
     public double getX() {
-        return p.x;
+        return position.getX();
     }
 
     public double getY() {
-        return p.y;
+        return position.getY();
     }
 
     public double getVx() {
-        return v.vx;
+        return velocity.getX();
     }
 
     public double getVy() {
-        return v.vy;
+        return velocity.getY();
     }
 
     public double getFx() {
-        return f.fx;
+        return force.getX();
     }
 
     public double getFy() {
-        return f.fy;
+        return force.getY();
     }
 
     public double getMass() {
@@ -50,62 +52,26 @@ public class Body {
     // ----- SETTERS ----- //
 
     public void setX(double x) {
-        p.x = x;
+        position.setX(x);
     }
 
     public void setY(double y) {
-        p.y = y;
+        position.setY(y);
     }
 
     public void setVx(double vx) {
-        v.vx = vx;
+        velocity.setX(vx);
     }
 
     public void setVy(double vy) {
-        v.vy = vy;
+        velocity.setY(vy);
     }
 
     public void setFx(double fx) {
-        f.fx = fx;
+        force.setX(fx);
     }
 
     public void setFy(double fy) {
-        f.fy = fy;
-    }
-
-    /*
-     * Point holds information about the bodys position.
-     */
-    class Point {
-        double x;
-        double y;
-        public Point(double x, double y) {
-            this.x = x;
-            this.y = y;
-        }
-    }
-
-    /*
-     * Velocity holds information about the bodys velocity.
-     */
-    class Velocity {
-        double vx;
-        double vy;
-        public Velocity(double vx, double vy) {
-            this.vx = vx;
-            this.vy = vy;
-        }
-    }
-
-    /*
-     * Force holds information about the bodys force.
-     */
-    class Force {
-        double fx;
-        double fy;
-        public Force(double fx, double fy) {
-            this.fx = fx;
-            this.fy = fy;
-        }
+        force.setY(fy);
     }
 }
