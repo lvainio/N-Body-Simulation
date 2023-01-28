@@ -1,5 +1,7 @@
-/*
- * Simple GUI class that display the bodies movement.
+/**
+ * GUI class that show how the bodies move.
+ * 
+ * @author Leo Vainio
  */
 
 import java.awt.Color;
@@ -22,17 +24,18 @@ class GUI extends JFrame {
     private JPanel panel;
     private BufferedImage background;
 
-    private Color[] colors; 
-    
     private Body[] bodies;
+    private Color[] colors; 
+    private boolean donutToggled;
 
     /*
      * Constructor for GUI object.  
      */
-    public GUI(String title, Body[] bodies) {
+    public GUI(String title, Body[] bodies, boolean donutToggled) {
         System.setProperty("sun.java2d.opengl", "true"); // Enable video acceleration.
 
         this.bodies = bodies;
+        this.donutToggled = donutToggled;
 
         // generate colors for each body.
         colors = new Color[bodies.length];
@@ -75,18 +78,21 @@ class GUI extends JFrame {
      * A simple nested class that handles drawing the bodies onto the canvas in each step.
      */
     class Panel extends JPanel {
-        // TODO: if donutToggled
-
         public void paint(Graphics g) {
             g.drawImage(background, 0, 0, null);
 
             double scale = 800.0 / (Simulation.RADIUS*2);
-            for (int i = 0; i < colors.length; i++) {
+            int i = 0;
+            if (donutToggled) {
+                Body body = bodies[0];
+                g.setColor(colors[0]);
+                g.fillOval((int) (body.getX()*scale), (int) (body.getY()*scale), RADIUS*3, RADIUS*3);
+                i = 1;
+            }
+            for (; i < colors.length; i++) {
                 Body body = bodies[i];
-                int x = (int) (body.getX() * scale); 
-                int y = (int) (body.getY() * scale);
                 g.setColor(colors[i]);
-                g.fillOval(x, y, RADIUS, RADIUS);
+                g.fillOval((int) (body.getX()*scale), (int) (body.getY()*scale), RADIUS, RADIUS);
             }
             g.dispose();
         }

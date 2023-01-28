@@ -82,7 +82,7 @@ public class Simulation {
 
         // init gui.
         if (guiToggled) {
-            gui = new GUI("N-body problem: sequential", bodies);
+            gui = new GUI("N-body problem: sequential", bodies, donutToggled);
         }
 
         // run simulation.
