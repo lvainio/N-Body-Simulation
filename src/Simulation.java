@@ -110,7 +110,7 @@ public class Simulation {
      * Generate bodies in a donut formation with a huge attracting body in the middle. 
      */
     private void generateBodiesDonut() {
-        bodies[0] = new Body(RADIUS, RADIUS, 0.0, 0.0, 100000000000.0);
+        bodies[0] = new Body(RADIUS, RADIUS, 0.0, 0.0, 100_000_000_000.0);
         for (int i = 1; i < bodies.length; i++) {
             Vector unit = getRandomUnitVector();
 
