@@ -9,8 +9,8 @@ run:
 - java Simulate
 - java Simulate <num_bodies>
 - java Simulate <num_bodies> <num_steps>
-- java Simulate <num_bodies> <num_steps> -gui
-- java Simulate <num_bodies> <num_steps> -gui -donut
+- java Simulate <num_bodies> <num_steps> -g
+- java Simulate <num_bodies> <num_steps> -g -d
 
 ## Settings:
 
