@@ -1,4 +1,5 @@
 import java.util.Random;
+import java.util.concurrent.CyclicBarrier;
 
 /**
  * Sequential implementation of the n-body problem.
@@ -28,7 +29,7 @@ public class NBodySimulation {
 
     private Body[] bodies;
 
-    private int numWorkers = 20;
+    private int numWorkers = 4;
 
     /*
      * Read command line arguments and start simulation.
@@ -84,8 +85,9 @@ public class NBodySimulation {
         timer.start();
         // Create threads.
         Worker[] workers = new Worker[numWorkers]; 
+        CyclicBarrier barrier = new CyclicBarrier(numWorkers);
         for (int id = 0; id < numWorkers; id++) {
-            workers[id] = new Worker(bodies, id, numWorkers, numSteps, guiToggled, donutToggled);
+            workers[id] = new Worker(bodies, id, numWorkers, numSteps, barrier, guiToggled, donutToggled);
             workers[id].start();
         }
         // Join threads.
