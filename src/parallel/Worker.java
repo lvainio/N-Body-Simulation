@@ -3,7 +3,10 @@ import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
 /**
+ * This class computes the forces of the bodies and moves the bodies. 
+ * Each thread is assigned a subset of the calculations.
  * 
+ * @author Leo Vainio
  */
 
 public class Worker extends Thread {

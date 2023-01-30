@@ -2,7 +2,7 @@ import java.util.Random;
 import java.util.concurrent.CyclicBarrier;
 
 /**
- * Sequential implementation of the n-body problem.
+ * Parallel implementation of the n-body problem.
  * 
  * Usage:
  *      compile: javac *.java
