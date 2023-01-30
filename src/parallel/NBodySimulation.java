@@ -8,7 +8,7 @@ import java.util.concurrent.CyclicBarrier;
  *      compile: javac *.java
  *      execute: java NbodySimulation <num_bodies> <num_steps> <num_workers>
  *      graphic: java NBodySimulation <num_bodies> <num_steps> <num_workers> -g
- *      donut: java NBodySimulation <num_bodies> <num_steps> <num_workers> -g -d
+ *      donut: java NBodySimulation <num_bodies> <num_steps> <num_workers> -g -r
  * 
  * @author: Leo Vainio
  */
@@ -52,7 +52,7 @@ public class NBodySimulation {
                 }
             }
             if (args.length >= 5) {
-                if (args[4].equals("-d")) { // donut
+                if (args[4].equals("-r")) { // donut
                     donutToggled = true;
                 }
             }

@@ -7,7 +7,7 @@ import java.util.Random;
  *      compile: javac *.java
  *      execute: java NbodySimulation <num_bodies> <num_steps> 
  *      graphic: java NBodySimulation <num_bodies> <num_steps> -g
- *      donut: java NBodySimulation <num_bodies> <num_steps> -g -d
+ *      donut: java NBodySimulation <num_bodies> <num_steps> -g -r
  * 
  * @author: Leo Vainio
  */
@@ -49,7 +49,7 @@ public class NBodySimulation {
                 }
             }
             if (args.length >= 4) {
-                if (args[3].equals("-d")) { // donut
+                if (args[3].equals("-r")) { // ring
                     donutToggled = true;
                 }
             }
