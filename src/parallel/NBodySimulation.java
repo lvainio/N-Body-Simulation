@@ -68,10 +68,8 @@ public class NBodySimulation {
 
         settings = new Settings(numBodies, numSteps, numWorkers, guiToggled, donutToggled, DT, G, radius, mass);
 
-        System.out.println("\n> Simulating the gravitational n-body problem with:");
-        System.out.println("\t - " + settings.numBodies() + " bodies");
-        System.out.println("\t - " + settings.numSteps() + " steps");
-        System.out.println("\t - " + settings.numWorkers() + " workers\n");
+        System.out.println("\n> Simulating the gravitational n-body problem with the following settings:");
+        System.out.println("\t- " + settings);
 
         new NBodySimulation();
     }
