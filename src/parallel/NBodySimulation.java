@@ -62,7 +62,7 @@ public class NBodySimulation {
         }
 
         final double DT = 1.0;
-        final double G = 6.67e-4;
+        final double G = 6.67e-11;
         final double radius = 500_000.0;
         final double mass = 100.0;
 
@@ -143,7 +143,7 @@ public class NBodySimulation {
      */
     private Body[] generateBodiesDonut() {
         Body[] bodies = new Body[settings.numBodies()];
-        bodies[0] = new Body(settings.radius(), settings.radius(), 0.0, 0.0, 100_000_000_000.0);
+        bodies[0] = new Body(settings.radius(), settings.radius(), 0.0, 0.0, 100_000_000_000_000_000_0.0);
         for (int i = 1; i < bodies.length; i++) {
             Vector unit = getRandomUnitVector();
 
@@ -152,8 +152,8 @@ public class NBodySimulation {
             double y = unit.getY() * r + settings.radius();
 
             Vector vel = getOrthogonalVector(unit);
-            double vx = vel.getX() * 10.0;
-            double vy = vel.getY() * 10.0;
+            double vx = vel.getX() * 15.0;
+            double vy = vel.getY() * 15.0;
             
             double mass = settings.mass();
             bodies[i] = new Body(x, y, vx, vy, mass);
