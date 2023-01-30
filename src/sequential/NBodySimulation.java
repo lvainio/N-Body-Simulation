@@ -22,7 +22,7 @@ public class NBodySimulation {
     // Constants.
     static final double RADIUS = 500_000.0;
     private final double MASS = 100.0;
-    private final double G = 6.67e-4;
+    private final double G = 6.67e-11;
     private final double DT = 1;
 
     private GUI gui;
@@ -110,7 +110,7 @@ public class NBodySimulation {
      * Generate bodies in a donut formation with a huge attracting body in the middle. 
      */
     private void generateBodiesDonut() {
-        bodies[0] = new Body(RADIUS, RADIUS, 0.0, 0.0, 100_000_000_000.0);
+        bodies[0] = new Body(RADIUS, RADIUS, 0.0, 0.0, 1e18);
         for (int i = 1; i < bodies.length; i++) {
             Vector unit = getRandomUnitVector();
 

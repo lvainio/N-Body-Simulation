@@ -95,7 +95,7 @@ public class NBodySimulation {
         if (!settings.ringToggled()) {
             generateBodies();
         } else {
-            generateBodiesDonut();
+            generateBodiesRing();
         }
 
         // gui.
@@ -128,7 +128,7 @@ public class NBodySimulation {
     /*
      * Generate bodies in a ring-like formation with a massive attracting body in the center. 
      */
-    private void generateBodiesDonut() {
+    private void generateBodiesRing() {
         bodies = new Body[settings.numBodies()];
 
         // Create the massive body in the center.
@@ -148,8 +148,8 @@ public class NBodySimulation {
             double y = unit.getY() * magnitude + settings.radius();
 
             Vector velocity = getOrthogonalVector(unit);
-            double vx = velocity.getX() * 15.0;
-            double vy = velocity.getY() * 15.0;
+            double vx = velocity.getX() * 10.0;
+            double vy = velocity.getY() * 10.0;
             
             bodies[i] = new Body(x, y, vx, vy, settings.mass());
         }
