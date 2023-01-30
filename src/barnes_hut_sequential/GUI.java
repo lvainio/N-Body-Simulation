@@ -15,7 +15,7 @@ import java.util.Random;
 class GUI extends JFrame {
     private final int FRAME_WIDTH = 800;
     private final int FRAME_HEIGHT = 800;
-    private final int RADIUS = 10;
+    private final int BODY_RADIUS = 10;
 
     private JPanel panel;
 
@@ -45,7 +45,7 @@ class GUI extends JFrame {
         }
 
         // initialize frame.
-        setTitle("N-Body simulation: parallel");
+        setTitle("Barnes-Hut simulation: sequential");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100,0, FRAME_WIDTH, FRAME_HEIGHT);
         setResizable(false);
@@ -64,7 +64,7 @@ class GUI extends JFrame {
     }
 
     /*
-     * A simple nested class that handles drawing the bodies onto the canvas in each step.
+     * This class handles drawing the bodies onto the canvas in each step of the simulation.
      */
     class Panel extends JPanel {
         public void paint(Graphics g) {
@@ -78,13 +78,13 @@ class GUI extends JFrame {
             if (settings.ringToggled()) {
                 Body body = bodies[0];
                 g.setColor(colors[0]);
-                g.fillOval((int) (body.getX()*scale), (int) (body.getY()*scale), RADIUS*2, RADIUS*2);
+                g.fillOval((int) (body.getX()*scale), (int) (body.getY()*scale), BODY_RADIUS*2, BODY_RADIUS*2);
                 i = 1;
             }
             for (; i < colors.length; i++) {
                 Body body = bodies[i];
                 g.setColor(colors[i]);
-                g.fillOval((int) (body.getX()*scale), (int) (body.getY()*scale), RADIUS, RADIUS);
+                g.fillOval((int) (body.getX()*scale), (int) (body.getY()*scale), BODY_RADIUS, BODY_RADIUS);
             }
             g.dispose();
         }

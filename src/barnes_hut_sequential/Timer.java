@@ -1,6 +1,7 @@
-
-/*
- * Timer class
+/**
+ * Timer class. High resolution timer used to benchmark the simulation.
+ * 
+ * @author Leo Vainio
  */
 
 public class Timer {
