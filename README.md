@@ -2,19 +2,30 @@
 
 ## Usage:
 
-compile: 
+#### compile: 
 - javac *.java 
 
-run (sequential): 
+#### run (sequential): 
 - java NBodySimulation [default settings]
 - java NbodySimulation <num_bodies> <num_steps> 
 - java NBodySimulation <num_bodies> <num_steps> -g
 - java NBodySimulation <num_bodies> <num_steps> -g -d 
 
-The flags -g -r can be set after the first two arguments.
+The flags -g -d can be set after the first two arguments.
 
 -g: the simulation will be shown in a gui.
--r: the bodies will be generated in a ring formation around a central, more massive body.
+-d: the bodies will be generated in a ring formation around a central, more massive body.
+
+#### run (parallel):
+- java NBodySimulation [default settings]
+- java NbodySimulation <num_bodies> <num_steps> <num_workers>
+- java NBodySimulation <num_bodies> <num_steps> <num_workers> -g
+- java NBodySimulation <num_bodies> <num_steps> <num_workers> -g -d 
+
+The flags -g -d can be set after the first two arguments.
+
+-g: the simulation will be shown in a gui.
+-d: the bodies will be generated in a ring formation around a central, more massive body.
 
 
 
