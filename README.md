@@ -3,7 +3,7 @@
 ## Usage:
 
 #### compile: 
-- javac *.java 
+- javac *.java [java 14 or later required]
 
 #### run (sequential): 
 - java NBodySimulation [default settings]
