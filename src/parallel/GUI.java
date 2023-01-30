@@ -21,16 +21,17 @@ class GUI extends JFrame {
 
     private Body[] bodies;
     private Color[] colors; 
-    private boolean donutToggled;
+
+    private Settings settings;
 
     /*
      * Constructor for GUI object.  
      */
-    public GUI(String title, Body[] bodies, boolean donutToggled) {
+    public GUI(Body[] bodies, Settings settings) {
         System.setProperty("sun.java2d.opengl", "true"); // Enable video acceleration.
 
         this.bodies = bodies;
-        this.donutToggled = donutToggled;
+        this.settings = settings;
 
         // generate colors for each body.
         colors = new Color[bodies.length];
@@ -44,7 +45,7 @@ class GUI extends JFrame {
         }
 
         // initialize frame.
-        setTitle(title);
+        setTitle("N-Body simulation: parallel");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100,0, FRAME_WIDTH, FRAME_HEIGHT);
         setResizable(false);
@@ -72,9 +73,9 @@ class GUI extends JFrame {
             g.fillRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
 
             // draw bodies.
-            double scale = 800.0 / (NBodySimulation.RADIUS*2);
+            double scale = 800.0 / (settings.radius()*2);
             int i = 0;
-            if (donutToggled) {
+            if (settings.donutToggled()) {
                 Body body = bodies[0];
                 g.setColor(colors[0]);
                 g.fillOval((int) (body.getX()*scale), (int) (body.getY()*scale), RADIUS*2, RADIUS*2);
