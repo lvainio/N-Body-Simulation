@@ -18,7 +18,6 @@ public class NBodySimulation {
     private static final int MAX_NUM_STEPS = 10_000_000;
     private static final int MAX_NUM_WORKERS = 16;
     
-    // Settings.
     private static Settings settings;
 
     private Random rng;
