@@ -13,7 +13,7 @@
     private Settings settings;
 
     /*
-     * 
+     * Create a new body with specified position, velocity and mass.
      */
     public Body(double x, double y, double vx, double vy, double mass, Settings settings) {
         position = new Vector(x, y);
@@ -24,7 +24,7 @@
     }
 
     /*
-     * 
+     * Move the body depending on the force that is exerted on it. Reset the force to 0 after.
      */
     public void move() {
         double dVx = (getFx() / getMass()) * settings.DT();
@@ -41,7 +41,7 @@
     }
 
     /*
-     * 
+     * Add a bodies mass to this body and calculate the new center of mass.
      */
     public void addBody(Body body) {
         double centerX = (getX()*getMass() + body.getX()*body.getMass()) / (getMass() + body.getMass());
@@ -52,7 +52,7 @@
     }
 
     /*
-     * 
+     * Add the force from the gravitational pull of another body.
      */
     public void addForce(Body body) {
         double distance;

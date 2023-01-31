@@ -9,7 +9,7 @@ public class Vector {
     private double y;
     
     /*
-     * 
+     * Creates a vector with specified x and y value.
      */
     public Vector(double x, double y) {
         this.x = x;

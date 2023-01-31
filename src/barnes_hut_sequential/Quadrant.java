@@ -1,5 +1,8 @@
 /**
+ * This class represents a quadrant. The vector "center" contains the centerpoint
+ * of this quadrant.
  * 
+ * @author Leo Vainio
  */
 
 public class Quadrant {

@@ -1,5 +1,5 @@
 /**
- * Timer class. High resolution timer used to benchmark the simulation.
+ * High resolution timer used to benchmark the simulation.
  * 
  * @author Leo Vainio
  */
@@ -9,11 +9,10 @@ public class Timer {
     private long endTime;
     
     /*
-     * Constructor for Timer.
+     * Creates a timer and sets start time to now.
      */
     public Timer() {
         startTime = System.nanoTime();
-        endTime = System.nanoTime();
     }
 
     /*

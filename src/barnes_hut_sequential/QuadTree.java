@@ -1,5 +1,10 @@
 /**
+ * Each node in the tree has four children that represents each quadrant. A leaf of this 
+ * tree is called an external node and may or may not contain a body. A node contains at 
+ * most one body. Internal nodes does however sum up the mass and keep track of the center
+ * of mass of all the bodies it contains.
  * 
+ * @author Leo Vainio
  */
 
 public class QuadTree {
@@ -16,7 +21,7 @@ public class QuadTree {
     private Settings settings;
 
     /*
-     * 
+     * Create a quadtree.
      */
     public QuadTree(Quadrant quadrant, Settings settings) {
         this.quadrant = quadrant;
@@ -33,7 +38,7 @@ public class QuadTree {
     }
 
     /*
-     * 
+     * Insert a single body into the tree. 
      */
     private void insert(Body body) {
         // Do not add a body that is not in this quadrant.
@@ -71,7 +76,7 @@ public class QuadTree {
     }
 
     /*
-     * 
+     * Insert the body recursively into the correct quadrant.
      */
     private void insertInQuadrant(Body b) {
         if (northWest.getQuadrant().containsBody(b)) {
@@ -89,7 +94,7 @@ public class QuadTree {
     }
 
     /*
-     * 
+     * Calculate the forces exerted on each body.
      */
     public void calculateForces(Body[] bodies) {
         for (Body body : bodies) {
@@ -98,7 +103,8 @@ public class QuadTree {
     }
 
     /*
-     * 
+     * Calculate the force exerted on a single body by traversing the tree and
+     * adding up the total force.
      */
     private void calculateForce(Body body) {
         if (isExternal() && body != this.body && this.body != null) {

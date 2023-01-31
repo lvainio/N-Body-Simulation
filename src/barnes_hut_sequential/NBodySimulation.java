@@ -190,7 +190,7 @@ public class NBodySimulation {
     }
 
     /*
-     * Builds quadtree and computes total force exerted on each body. 
+     * Build quadtree and compute total force exerted on each body. 
      */
     private void computeForces() {
         Quadrant quadrant = new Quadrant(settings.radius(), settings.radius(), settings.far());
@@ -200,7 +200,7 @@ public class NBodySimulation {
     }
 
     /*
-     * Moves all the bodies depending on the force exerted on each body.
+     * Move all the bodies depending on the force exerted on each body.
      */
     private void moveBodies() {
         for (Body body : bodies) {
