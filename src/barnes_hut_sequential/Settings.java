@@ -6,6 +6,7 @@
 
 public record Settings (int numBodies,
                         int numSteps,
+                        double far,
                         double threshold,
                         boolean guiToggled,
                         boolean ringToggled,

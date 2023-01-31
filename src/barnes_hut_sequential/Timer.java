@@ -42,7 +42,7 @@ public class Timer {
      * Print the elapsed time.
      */
     public void print() {
-        double elapsedSeconds = (endTime-startTime) / 1_000_000_000.0;
+        double elapsedSeconds = (endTime-startTime) / 1e9;
         System.out.println("> Execution time: " + elapsedSeconds);
     }
 }

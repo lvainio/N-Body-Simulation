@@ -10,13 +10,66 @@
     private Vector force;
     private double mass;
 
-    public Body(double x, double y, double vx, double vy, double mass) {
+    private Settings settings;
+
+    /*
+     * 
+     */
+    public Body(double x, double y, double vx, double vy, double mass, Settings settings) {
         position = new Vector(x, y);
         velocity = new Vector(vx, vy);
         force = new Vector(0.0, 0.0);
         this.mass = mass;
+        this.settings = settings;
     }
 
+    /*
+     * 
+     */
+    public void move() {
+        double dVx = (getFx() / getMass()) * settings.DT();
+        double dVy = (getFy() / getMass()) * settings.DT();
+        double dPx = (getVx() + dVx / 2.0) * settings.DT();
+        double dPy = (getVy() + dVy / 2.0) * settings.DT();
+
+        setVx(getVx() + dVx);
+        setVy(getVy() + dVy);
+        setX(getX() + dPx);
+        setY(getY() + dPy);
+        setFx(0.0);
+        setFy(0.0);
+    }
+
+    /*
+     * 
+     */
+    public void addBody(Body body) {
+        double centerX = (getX()*getMass() + body.getX()*body.getMass()) / (getMass() + body.getMass());
+        double centerY = (getY()*getMass() + body.getY()*body.getMass()) / (getMass() + body.getMass());
+        setMass(getMass() + body.getMass());
+        setX(centerX);
+        setY(centerY);
+    }
+
+    /*
+     * 
+     */
+    public void addForce(Body body) {
+        double distance;
+        double magnitude;
+        double dirX;
+        double dirY;
+
+        distance = Math.sqrt(Math.pow(getX()-body.getX(), 2) + Math.pow(getY()-body.getY(), 2));
+        magnitude = (settings.G() * getMass() * body.getMass()) / (distance * distance);
+        dirX = body.getX() - getX();
+        dirY = body.getY() - getY();
+
+        setFx(getFx() + magnitude * dirX / distance);
+        setFy(getFy() + magnitude * dirY / distance);
+    }
+
+    // ----- GETTERS ----- //
     public double getX() {
         return position.getX();
     }
@@ -45,6 +98,7 @@
         return mass;
     }
 
+    // ----- SETTERS ----- //
     public void setX(double x) {
         position.setX(x);
     }
@@ -67,5 +121,9 @@
 
     public void setFy(double fy) {
         force.setY(fy);
+    }
+
+    public void setMass(double mass) {
+        this.mass = mass;
     }
 }

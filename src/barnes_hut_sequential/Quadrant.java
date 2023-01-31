@@ -4,21 +4,44 @@
 
 public class Quadrant {
     private Vector center; 
+    private double radius;
 
-    private Quadrant(double x, double y) {
-        // TODO: set the fields.
+    /*
+     * Create a new quadrant with center point (x,y) and the specified radius. 
+     */
+    public Quadrant(double x, double y, double radius) {
+        center = new Vector(x, y);
+        this.radius = radius;
     }
 
+    /*
+     * Returns true if the body is within the boundaries of this quadrant.
+     */
     public boolean containsBody(Body body) {
         double bx = body.getX();
         double by = body.getY();
-
         double cx = center.getX();
         double cy = center.getY();
 
-        // TODO: contains stuff here
-
-
+        if (bx >= cx - radius  &&
+            bx < cx + radius &&
+            by >= cy - radius &&
+            by < cy + radius) {
+                return true;
+        }
         return false;
+    }
+
+    // ----- GETTERS ----- //
+    public double getX() {
+        return center.getX();
+    }
+
+    public double getY() {
+        return center.getY();
+    }
+
+    public double getRadius() {
+        return radius;
     }
 }

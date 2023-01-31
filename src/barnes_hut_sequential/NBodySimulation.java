@@ -9,12 +9,12 @@ import java.util.Random;
  * 
  *      run:
  *          - java NBodySimulation [default settings]
- *          - java NBodySimulation <num_bodies> <num_steps> <threshold>
- *          - java NBodySimulation <num_bodies> <num_steps> <threshold> -g -r
+ *          - java NBodySimulation <num_bodies> <num_steps> <far_value> <threshold>
+ *          - java NBodySimulation <num_bodies> <num_steps> <far_value> <threshold> -g -r
  * 
- * Threshold value should be between 0.0 and 1.0. 0.5 is the most commonly used value and
- * 0.0 would turn this into a brute force simulation. Generally speaking, smaller values
- * yield a more accurate simulation but higher values makes for a faster simulation.
+ * Threshold value 0.5 is the most commonly used value and 0.0 would turn this into 
+ * a brute force simulation. Generally speaking, smaller values yield a more accurate 
+ * simulation but higher values makes for a faster simulation.
  * 
  * The flags -g -r can be set after the first two arguments.
  * 
@@ -25,8 +25,9 @@ import java.util.Random;
  */
 
 public class NBodySimulation {
-    private static final int MAX_NUM_BODIES = 1000;
+    private static final int MAX_NUM_BODIES = 500;
     private static final int MAX_NUM_STEPS = 100_000_000;
+    private static final double MAX_FAR_VALUE = 1e10;
     private static final double DEFAULT_THRESHOLD = 0.5;
     private static Settings settings;
 
@@ -42,6 +43,7 @@ public class NBodySimulation {
     public static void main(String[] args) {
         int numBodies = MAX_NUM_BODIES;
         int numSteps = MAX_NUM_STEPS;
+        double far = MAX_FAR_VALUE;
         double threshold = DEFAULT_THRESHOLD;
         boolean guiToggled = false;
         boolean ringToggled = false;
@@ -56,15 +58,19 @@ public class NBodySimulation {
                 numSteps = (numSteps > MAX_NUM_STEPS || numSteps < 1) ? MAX_NUM_STEPS : numSteps;
             }
             if (args.length >= 3) {
-                threshold = Double.parseDouble(args[2]);
+                far = Double.parseDouble(args[2]);
+                far = (far < 0.0 || far > MAX_FAR_VALUE) ? MAX_FAR_VALUE : far;
+            }
+            if (args.length >= 4) {
+                threshold = Double.parseDouble(args[3]);
                 threshold = (threshold < 0.0) ? DEFAULT_THRESHOLD : numSteps;
             }
-            if (args.length >= 4)
-                if (args[3].equals("-g")) 
+            if (args.length >= 5)
+                if (args[4].equals("-g")) 
                     guiToggled = true;
-            if (args.length >= 5) 
-                if (args[4].equals("-r")) 
-                    guiToggled = true;
+            if (args.length >= 6) 
+                if (args[5].equals("-r")) 
+                    ringToggled = true;
 
         } catch (NumberFormatException nfe) {
             nfe.printStackTrace();
@@ -73,10 +79,10 @@ public class NBodySimulation {
 
         final double DT = 1.0;
         final double G = 6.67e-11;
-        final double radius = 1_000_000.0;
+        final double radius = 500_000;
         final double mass = 100.0;
 
-        settings = new Settings(numBodies, numSteps, threshold, guiToggled, ringToggled, DT, G, radius, mass);
+        settings = new Settings(numBodies, numSteps, far, threshold, guiToggled, ringToggled, DT, G, radius, mass);
 
         System.out.println("\n> Simulating the gravitational n-body problem with the following settings:");
         System.out.println("\t- " + settings);
@@ -121,7 +127,7 @@ public class NBodySimulation {
             double vx = rng.nextDouble() * 25 - 12.5; 
             double vy = rng.nextDouble() * 25 - 12.5; 
             double mass = settings.mass();
-            bodies[i] = new Body(x, y, vx, vy, mass);
+            bodies[i] = new Body(x, y, vx, vy, mass, settings);
         }
     }
 
@@ -137,7 +143,7 @@ public class NBodySimulation {
         double centerVx = 0.0;
         double centerVy = 0.0;
         double centerMass = 1e18;
-        bodies[0] = new Body(centerX, centerY, centerVx, centerVy, centerMass);
+        bodies[0] = new Body(centerX, centerY, centerVx, centerVy, centerMass, settings);
 
         // Generate the ring of bodies.
         for (int i = 1; i < bodies.length; i++) {
@@ -151,7 +157,7 @@ public class NBodySimulation {
             double vx = velocity.getX() * 10.0;
             double vy = velocity.getY() * 10.0;
             
-            bodies[i] = new Body(x, y, vx, vy, settings.mass());
+            bodies[i] = new Body(x, y, vx, vy, settings.mass(), settings);
         }
     }
 
@@ -178,42 +184,27 @@ public class NBodySimulation {
             if (settings.guiToggled()) {
                 gui.repaint();
             }
-            calculateForces();
+            computeForces();
             moveBodies();
         }
     }
 
     /*
-     * Calculates total force on each body. 
+     * Builds quadtree and computes total force exerted on each body. 
      */
-    private void calculateForces() {
-        QuadTree qTree = new QuadTree(settings.threshold());
-        for (int i = 0; i < settings.numBodies(); i++) {
-            qTree.insert(bodies[i]);
-        } 
-        for (int i = 0; i < settings.numBodies(); i++) {
-            qTree.calculateForce(bodies[i]);
-        }
+    private void computeForces() {
+        Quadrant quadrant = new Quadrant(settings.radius(), settings.radius(), settings.far());
+        QuadTree quadTree = new QuadTree(quadrant, settings);
+        quadTree.insertBodies(bodies);
+        quadTree.calculateForces(bodies);
     }
 
     /*
-     * Calculates new velocity and position for each body.
+     * Moves all the bodies depending on the force exerted on each body.
      */
     private void moveBodies() {
-        for (int i = 0; i < settings.numBodies(); i++) {
-            Body b = bodies[i];
-
-            double dVx = (b.getFx() / b.getMass()) * settings.DT();
-            double dVy = (b.getFy() / b.getMass()) * settings.DT();
-            double dPx = (b.getVx() + dVx / 2.0) * settings.DT();
-            double dPy = (b.getVy() + dVy / 2.0) * settings.DT();
-
-            b.setVx(b.getVx() + dVx);
-            b.setVy(b.getVy() + dVy);
-            b.setX(b.getX() + dPx);
-            b.setY(b.getY() + dPy);
-            b.setFx(0.0);
-            b.setFy(0.0);
+        for (Body body : bodies) {
+            body.move();
         }
     }
 }
