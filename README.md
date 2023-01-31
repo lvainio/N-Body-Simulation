@@ -19,9 +19,9 @@
 
 #### run (barnes-hut sequential):
 - java NBodySimulation [default settings]
-- java NbodySimulation <num_bodies> <num_steps> \<threshold>
-- java NBodySimulation <num_bodies> <num_steps> \<threshold> -g
-- java NBodySimulation <num_bodies> <num_steps> \<threshold> -g -r
+- java NbodySimulation <num_bodies> <num_steps> <far_value> \<threshold>
+- java NBodySimulation <num_bodies> <num_steps> <far_value> \<threshold> -g
+- java NBodySimulation <num_bodies> <num_steps> <far_value> \<threshold> -g -r
 
 #### run (barnes-hut parallel):
 - java NBodySimulation [default settings]
