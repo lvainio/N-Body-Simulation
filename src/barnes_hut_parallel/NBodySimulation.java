@@ -1,7 +1,8 @@
 import java.util.Random;
+import java.util.concurrent.CyclicBarrier;
 
 /**
- * Sequential implementation of Barnes-Hut simulation.
+ * Parallel implementation of Barnes-Hut simulation.
  * 
  * Usage:
  *      compile:
@@ -9,14 +10,14 @@ import java.util.Random;
  * 
  *      run:
  *          - java NBodySimulation [default settings]
- *          - java NBodySimulation <num_bodies> <num_steps> <far_value> <threshold>
- *          - java NBodySimulation <num_bodies> <num_steps> <far_value> <threshold> -g -r
+ *          - java NBodySimulation <numBodies> <numSteps> <approximationDistance> <numWorkers>
+ *          - java NBodySimulation <numBodies> <numSteps> <approximationDistance> <numWorkers> -g -r
  * 
- * Threshold value 0.5 is the most commonly used value and 0.0 would turn this into 
- * a brute force simulation. Generally speaking, smaller values yield a more accurate 
- * simulation but higher values makes for a faster simulation.
+ * The approximation distance indicates how far away two bodies have to be to use approximation. If 
+ * this value is really large this will turn into a brute force solution. A larger value will yield
+ * a more accurate simulation but will be slower.
  * 
- * The flags -g -r can be set after the first two arguments.
+ * The flags -g -r can be set after the first arguments.
  * 
  * -g: the simulation will be shown in a gui.
  * -r: the bodies will be generated in a ring formation around a central, more massive body.
@@ -25,45 +26,56 @@ import java.util.Random;
  */
 
 public class NBodySimulation {
-    private static final int MAX_NUM_BODIES = 500;
+    private static final int MAX_NUM_BODIES = 1_000;
     private static final int MAX_NUM_STEPS = 100_000_000;
-    private static final double MAX_FAR_VALUE = 1e10;
-    private static final double DEFAULT_THRESHOLD = 0.5;
-    private static Settings settings;
+    private static final double MAX_APPROXIMATION_DISTANCE = 1e10;
+    private static final int MAX_NUM_WORKERS = 16;
+
+    private static final double DT = 1.0;
+    private static final double G = 6.67e-11;
+    private static final double RADIUS = 500_000;
+    private static final double MASS = 100.0;
+
+    private Settings settings;
 
     private Random rng;
     private Timer timer;
-    private GUI gui;
 
     private Body[] bodies;
 
-    /*
-     * Parse command line arguments and adjust the settings for the simulation.
+    /**
+     * Parse command line arguments, toggle the settings and start the simulation.
+     * 
+     * @param args  Command line args (numBodies, numSteps, far, -g, -r).
      */
     public static void main(String[] args) {
         int numBodies = MAX_NUM_BODIES;
         int numSteps = MAX_NUM_STEPS;
-        double far = MAX_FAR_VALUE;
-        double threshold = DEFAULT_THRESHOLD;
+        double approximationDistance = MAX_APPROXIMATION_DISTANCE;
+        int numWorkers = MAX_NUM_WORKERS;
         boolean guiToggled = false;
         boolean ringToggled = false;
 
         try {
             if (args.length >= 1) {
                 numBodies = Integer.parseInt(args[0]);
-                numBodies = (numBodies > MAX_NUM_BODIES || numBodies < 1) ? MAX_NUM_BODIES : numBodies;
+                if (numBodies <= 0 || numBodies > MAX_NUM_BODIES) 
+                    numBodies = MAX_NUM_BODIES;
             }
             if (args.length >= 2) {
                 numSteps = Integer.parseInt(args[1]);
-                numSteps = (numSteps > MAX_NUM_STEPS || numSteps < 1) ? MAX_NUM_STEPS : numSteps;
+                if (numSteps <= 0 || numSteps > MAX_NUM_STEPS)
+                    numSteps = MAX_NUM_STEPS;
             }
             if (args.length >= 3) {
-                far = Double.parseDouble(args[2]);
-                far = (far < 0.0 || far > MAX_FAR_VALUE) ? MAX_FAR_VALUE : far;
+                approximationDistance = Double.parseDouble(args[2]);
+                if (approximationDistance < 0.0 || approximationDistance > MAX_APPROXIMATION_DISTANCE)
+                    approximationDistance = MAX_APPROXIMATION_DISTANCE;
             }
             if (args.length >= 4) {
-                threshold = Double.parseDouble(args[3]);
-                threshold = (threshold < 0.0) ? DEFAULT_THRESHOLD : numSteps;
+                numWorkers = Integer.parseInt(args[3]);
+                if (numWorkers <= 0 || numWorkers > MAX_NUM_WORKERS)
+                    numWorkers = MAX_NUM_WORKERS;
             }
             if (args.length >= 5)
                 if (args[4].equals("-g")) 
@@ -76,54 +88,63 @@ public class NBodySimulation {
             nfe.printStackTrace();
             System.exit(1);
         }
-
-        final double DT = 1.0;
-        final double G = 6.67e-11;
-        final double radius = 500_000;
-        final double mass = 100.0;
-
-        settings = new Settings(numBodies, numSteps, far, threshold, guiToggled, ringToggled, DT, G, radius, mass);
-
-        System.out.println("\n> Simulating the gravitational n-body problem with the following settings:");
-        System.out.println("\t- " + settings);
-
-        new NBodySimulation();
+        new NBodySimulation(new Settings(numBodies, numSteps, approximationDistance, numWorkers, guiToggled, ringToggled, DT, G, MASS, RADIUS));
     }
 
-     /*
-     * Generate bodies, run simulation and time it.
+    /**
+     * Generate the bodies and start the simulation.
+     * 
+     * @param settings  A record that holds the settings of the simulation.
      */
-    public NBodySimulation() {
-        rng = new Random();
-        rng.setSeed(System.nanoTime());
+    public NBodySimulation(Settings settings) {
+        this.settings = settings;
+
+        System.out.println("\n> Simulating the gravitational n-body problem with the following settings:");
+        System.out.println(settings);
 
         // generate bodies.
+        rng = new Random();
+        rng.setSeed(System.nanoTime());
         if (!settings.ringToggled()) {
             generateBodies();
         } else {
             generateBodiesRing();
         }
 
-        // gui.
-        if (settings.guiToggled()) {
-            gui = new GUI(bodies, settings);
-        }
-
-        // run simulation.
+        // run simulation. TODO: cleanup and correct
         timer = new Timer();
         timer.start();
-        simulate();
+        Worker[] workers = new Worker[settings.numWorkers()]; 
+        CyclicBarrier barrier = new CyclicBarrier(settings.numWorkers());
+        Vector[][] forces = new Vector[settings.numWorkers()][settings.numBodies()];
+        for (int i = 0; i < settings.numWorkers(); i++) {
+            for (int j = 0; j < settings.numBodies(); j++) {
+                forces[i][j] = new Vector(0.0, 0.0);
+            }
+        }
+        for (int id = 0; id < settings.numWorkers(); id++) {
+            workers[id] = new Worker();
+            workers[id].start();
+        }
+        for (int id = 0; id < settings.numWorkers(); id++) {
+            try {
+                workers[id].join();
+            } catch (InterruptedException ie) {
+                ie.printStackTrace();
+                System.exit(1);
+            }
+        }
         timer.stopAndPrint();
     }
 
-    /*
-     * Generate bodies randomly within set boundaries (settings.radius()).
+    /**
+     * Generate bodies randomly within set boundaries.
      */
     private void generateBodies() {
         bodies = new Body[settings.numBodies()];
         for (int i = 0; i < bodies.length; i++) {
-            double x = rng.nextDouble() * (settings.radius() * 2);
-            double y = rng.nextDouble() * (settings.radius() * 2);
+            double x = rng.nextDouble() * (settings.universeRadius() * 2);
+            double y = rng.nextDouble() * (settings.universeRadius() * 2);
             double vx = rng.nextDouble() * 25 - 12.5; 
             double vy = rng.nextDouble() * 25 - 12.5; 
             double mass = settings.mass();
@@ -138,8 +159,9 @@ public class NBodySimulation {
         bodies = new Body[settings.numBodies()];
 
         // Create the massive body in the center.
-        double centerX = settings.radius();
-        double centerY = settings.radius();
+        double r = settings.universeRadius();
+        double centerX = r;
+        double centerY = r;
         double centerVx = 0.0;
         double centerVy = 0.0;
         double centerMass = 1e18;
@@ -149,9 +171,9 @@ public class NBodySimulation {
         for (int i = 1; i < bodies.length; i++) {
             Vector unit = getRandomUnitVector();
 
-            double magnitude = (settings.radius() * 0.6) + (settings.radius() * 0.8 - settings.radius() * 0.6) * rng.nextDouble();
-            double x = unit.getX() * magnitude + settings.radius();
-            double y = unit.getY() * magnitude + settings.radius();
+            double magnitude = (r * 0.6) + (r * 0.8 - r * 0.6) * rng.nextDouble(); // min + (max - min) * random
+            double x = unit.getX() * magnitude + r;
+            double y = unit.getY() * magnitude + r;
 
             Vector velocity = getOrthogonalVector(unit);
             double vx = velocity.getX() * 10.0;
@@ -174,37 +196,5 @@ public class NBodySimulation {
      */
     private Vector getOrthogonalVector(Vector v) {
         return new Vector(v.getY(), -v.getX());
-    }
-
-    /*
-     * Run the simulation for specified number of steps.
-     */
-    private void simulate() {
-        for (int i = 0; i < settings.numSteps(); i++) {
-            if (settings.guiToggled()) {
-                gui.repaint();
-            }
-            computeForces();
-            moveBodies();
-        }
-    }
-
-    /*
-     * Build quadtree and compute total force exerted on each body. 
-     */
-    private void computeForces() {
-        Quadrant quadrant = new Quadrant(settings.radius(), settings.radius(), settings.far());
-        QuadTree quadTree = new QuadTree(quadrant, settings);
-        quadTree.insertBodies(bodies);
-        quadTree.calculateForces(bodies);
-    }
-
-    /*
-     * Move all the bodies depending on the force exerted on each body.
-     */
-    private void moveBodies() {
-        for (Body body : bodies) {
-            body.move();
-        }
     }
 }

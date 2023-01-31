@@ -73,7 +73,7 @@ class GUI extends JFrame {
             g.fillRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
 
             // draw bodies.
-            double scale = 800.0 / (settings.radius()*2);
+            double scale = 800.0 / (settings.universeRadius()*2);
             int i = 0;
             if (settings.ringToggled()) {
                 Body body = bodies[0];

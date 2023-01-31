@@ -4,13 +4,29 @@
  * @author Leo Vainio
  */
 
-public record Settings (int numBodies,
+ public record Settings (int numBodies,
                         int numSteps,
-                        double far,
-                        double threshold,
+                        double approximationDistance,
+                        int numWorkers,
                         boolean guiToggled,
                         boolean ringToggled,
                         double DT,
                         double G,
-                        double radius,
-                        double mass) {}
+                        double mass,
+                        double universeRadius) {
+
+    /**
+     * Returns a string representation of the data in the record.
+     */
+    public String toString() {
+        return "\t- numBodies=" + numBodies + ",\n" +
+            "\t- numSteps=" + numSteps + ",\n" +
+            "\t- approximationDistance=" + approximationDistance + ",\n" +
+            "\t- guiToggled=" + guiToggled + ",\n" +
+            "\t- ringToggled=" + ringToggled + ",\n" +
+            "\t- DT=" + DT + ",\n" +
+            "\t- G=" + G + ",\n" +
+            "\t- mass=" + mass + ",\n" +
+            "\t- universeRadius=" + universeRadius + ",\n";
+    }
+}

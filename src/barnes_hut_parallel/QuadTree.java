@@ -111,9 +111,8 @@ public class QuadTree {
             body.addForce(this.body);
         } 
         else if (groupBody != null) {
-            double s = quadrant.getRadius() * 2;
-            double d = Math.sqrt(Math.pow(body.getX()-groupBody.getX(), 2) + Math.pow(body.getY()-groupBody.getY(), 2));
-            if (s / d < settings.threshold()) {
+            double distance = Math.sqrt(Math.pow(body.getX()-groupBody.getX(), 2) + Math.pow(body.getY()-groupBody.getY(), 2));
+            if (distance > settings.approximationDistance()) {
                 body.addForce(this.groupBody);
             } 
             else {
