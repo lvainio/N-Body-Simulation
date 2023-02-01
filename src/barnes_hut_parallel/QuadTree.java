@@ -29,6 +29,19 @@ public class QuadTree {
     }
 
     /*
+     * 
+     */
+    public void reset(Quadrant quadrant) {
+        this.quadrant = quadrant;
+        northWest = null;
+        northEast = null;
+        southWest = null;
+        southEast = null;
+        groupBody = null;
+        body = null;
+    }
+
+    /*
      * Insert an array of bodies into the quadtree.
      */
     public void insertBodies(Body[] bodies) {
@@ -94,19 +107,10 @@ public class QuadTree {
     }
 
     /*
-     * Calculate the forces exerted on each body.
-     */
-    public void calculateForces(Body[] bodies) {
-        for (Body body : bodies) {
-            calculateForce(body);
-        }
-    }
-
-    /*
      * Calculate the force exerted on a single body by traversing the tree and
      * adding up the total force.
      */
-    private void calculateForce(Body body) {
+    public void computeForce(Body body) {
         if (isExternal() && body != this.body && this.body != null) {
             body.addForce(this.body);
         } 
@@ -117,13 +121,13 @@ public class QuadTree {
             } 
             else {
                 if (northWest != null)
-                    northWest.calculateForce(body);
+                    northWest.computeForce(body);
                 if (northEast != null)
-                    northEast.calculateForce(body);
+                    northEast.computeForce(body);
                 if (southWest != null)
-                    southWest.calculateForce(body);
+                    southWest.computeForce(body);
                 if (southEast != null)
-                    southEast.calculateForce(body);
+                    southEast.computeForce(body);
             }
         }
     }

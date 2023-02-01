@@ -22,6 +22,7 @@
         return "\t- numBodies=" + numBodies + ",\n" +
             "\t- numSteps=" + numSteps + ",\n" +
             "\t- approximationDistance=" + approximationDistance + ",\n" +
+            "\t- numWorkers=" + numWorkers + ",\n" +
             "\t- guiToggled=" + guiToggled + ",\n" +
             "\t- ringToggled=" + ringToggled + ",\n" +
             "\t- DT=" + DT + ",\n" +

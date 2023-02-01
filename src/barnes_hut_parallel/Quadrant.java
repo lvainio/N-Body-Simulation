@@ -6,14 +6,14 @@
  */
 
 public class Quadrant {
-    private Vector center; 
-    private double radius;
+    private final Vector center; 
+    private final double radius;
 
     /*
      * Create a new quadrant with center point (x,y) and the specified radius. 
      */
     public Quadrant(double x, double y, double radius) {
-        center = new Vector(x, y);
+        this.center = new Vector(x, y);
         this.radius = radius;
     }
 
@@ -21,15 +21,10 @@ public class Quadrant {
      * Returns true if the body is within the boundaries of this quadrant.
      */
     public boolean containsBody(Body body) {
-        double bx = body.getX();
-        double by = body.getY();
-        double cx = center.getX();
-        double cy = center.getY();
-
-        if (bx >= cx - radius  &&
-            bx < cx + radius &&
-            by >= cy - radius &&
-            by < cy + radius) {
+        if (body.getX() >= center.getX() - radius  &&
+            body.getX() < center.getX() + radius &&
+            body.getY() >= center.getY() - radius &&
+            body.getY() < center.getY() + radius) {
                 return true;
         }
         return false;

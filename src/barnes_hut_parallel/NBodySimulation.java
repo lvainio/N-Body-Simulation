@@ -111,19 +111,15 @@ public class NBodySimulation {
             generateBodiesRing();
         }
 
-        // run simulation. TODO: cleanup and correct
+        // run simulation. 
         timer = new Timer();
         timer.start();
         Worker[] workers = new Worker[settings.numWorkers()]; 
         CyclicBarrier barrier = new CyclicBarrier(settings.numWorkers());
-        Vector[][] forces = new Vector[settings.numWorkers()][settings.numBodies()];
-        for (int i = 0; i < settings.numWorkers(); i++) {
-            for (int j = 0; j < settings.numBodies(); j++) {
-                forces[i][j] = new Vector(0.0, 0.0);
-            }
-        }
+        Quadrant quadrant = new Quadrant(settings.universeRadius(), settings.universeRadius(), settings.approximationDistance());
+        QuadTree quadTree = new QuadTree(quadrant, settings);
         for (int id = 0; id < settings.numWorkers(); id++) {
-            workers[id] = new Worker();
+            workers[id] = new Worker(id, bodies, barrier, quadTree, settings);
             workers[id].start();
         }
         for (int id = 0; id < settings.numWorkers(); id++) {
