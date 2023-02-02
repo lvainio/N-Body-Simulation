@@ -2,97 +2,103 @@ import java.util.Random;
 import java.util.concurrent.CyclicBarrier;
 
 /**
- * Parallel implementation of the n-body problem.
+ * Parallel implementation of brute force n-body simulation.
  * 
- * Usage:
- *      compile: javac *.java
- *      execute: java NbodySimulation <num_bodies> <num_steps> <num_workers>
- *      graphic: java NBodySimulation <num_bodies> <num_steps> <num_workers> -g
- *      donut: java NBodySimulation <num_bodies> <num_steps> <num_workers> -g -r
+ * Compile (Requires JDK version 14 or later):
+ *      *.java
+ *      
+ * Run:
+ *      java NBodySimulation
+ *      java NBodySimulation <numBodies> <numSteps> <numWorkers>
+ *      java NBodySimulation <numBodies> <numSteps> <numWorkers> -g -r
+ * 
+ * The flags can be set after the other arguments:
+ *      g: the simulation will be shown in a gui.
+ *      r: the bodies will be generated in a ring formation around a central, more massive body.
  * 
  * @author: Leo Vainio
  */
 
 public class NBodySimulation {
-    private static final int MAX_NUM_BODIES = 400;
+    private static final int MAX_NUM_BODIES = 240;
     private static final int MAX_NUM_STEPS = 10_000_000;
     private static final int MAX_NUM_WORKERS = 16;
-    
-    private static Settings settings;
 
+    private static final double DT = 1.0;
+    private static final double G = 6.67e-11;
+    private static final double SPACE_RADIUS = 1000_000;
+    private static final double MASS = 100.0;
+    
     private Random rng;
+    private Settings settings;
     private Timer timer;
 
-    /*
-     * Read command line arguments and toggle the settings for the simulation.
+    /**
+     * Parse command line arguments and configure settings of the simulation.
+     * 
+     * @param args  <numBodies> <numSteps> <numWorkers> -g -r
      */
     public static void main(String[] args) {
         int numBodies = MAX_NUM_BODIES;
         int numSteps = MAX_NUM_STEPS;
         int numWorkers = MAX_NUM_WORKERS;
         boolean guiToggled = false;
-        boolean donutToggled = false;
+        boolean ringToggled = false;
 
         try {
             if (args.length >= 1) {
                 numBodies = Integer.parseInt(args[0]);
-                numBodies = (numBodies > MAX_NUM_BODIES || numBodies < 1) ? MAX_NUM_BODIES : numBodies;
+                if (numBodies <= 0 || numBodies > MAX_NUM_BODIES) 
+                    numBodies = MAX_NUM_BODIES;
             }
             if (args.length >= 2) {
                 numSteps = Integer.parseInt(args[1]);
-                numSteps = (numSteps > MAX_NUM_STEPS || numSteps < 1) ? MAX_NUM_STEPS : numSteps;
+                if (numSteps <= 0 || numSteps > MAX_NUM_STEPS)
+                    numSteps = MAX_NUM_STEPS;
             }
             if (args.length >= 3) {
                 numWorkers = Integer.parseInt(args[2]);
-                numWorkers = (numWorkers > MAX_NUM_WORKERS || numWorkers < 1) ? MAX_NUM_WORKERS : numWorkers;
+                if (numWorkers <= 0 || numWorkers > MAX_NUM_WORKERS) 
+                    numWorkers = MAX_NUM_WORKERS;
             }
-            if (args.length >= 4) {
-                if (args[3].equals("-g")) { // graphics
+            if (args.length >= 4)
+                if (args[3].equals("-g")) 
                     guiToggled = true;
-                }
-            }
-            if (args.length >= 5) {
-                if (args[4].equals("-r")) { // donut
-                    donutToggled = true;
-                }
-            }
+            if (args.length >= 5) 
+                if (args[4].equals("-r")) 
+                    ringToggled = true;
+            
         } catch (NumberFormatException nfe) {
             nfe.printStackTrace();
             System.exit(1);
         }
 
-        final double DT = 1.0;
-        final double G = 6.67e-11;
-        final double radius = 500_000.0;
-        final double mass = 100.0;
+        new NBodySimulation(new Settings(numBodies, numSteps, numWorkers, guiToggled, ringToggled, DT, G, MASS, SPACE_RADIUS));
+    }
 
-        settings = new Settings(numBodies, numSteps, numWorkers, guiToggled, donutToggled, DT, G, radius, mass);
-
+    /**
+     * Parse command line arguments and configure settings of the simulation.
+     * 
+     * @param args  <numBodies> <numSteps> -g -r
+     */
+    public NBodySimulation(Settings settings) {
+        this.settings = settings;
         System.out.println("\n> Simulating the gravitational n-body problem with the following settings:");
         System.out.println("\t- " + settings);
 
-        new NBodySimulation();
-    }
-
-     /*
-     * Generate bodies, run simulation and time it.
-     */
-    public NBodySimulation() {
         rng = new Random();
         rng.setSeed(System.nanoTime());
 
-        // generate bodies.
         Body[] bodies;
-        if (!settings.donutToggled()) {
-            bodies = generateBodies();
+        if (settings.ringToggled()) {
+            bodies = generateBodiesRing();
         } else {
-            bodies = generateBodiesDonut();
+            bodies = generateBodies();
         }
 
-        // run simulation.
+        // Run simulation.
         timer = new Timer();
         timer.start();
-
         Worker[] workers = new Worker[settings.numWorkers()]; 
         CyclicBarrier barrier = new CyclicBarrier(settings.numWorkers());
         Vector[][] forces = new Vector[settings.numWorkers()][settings.numBodies()];
@@ -101,7 +107,6 @@ public class NBodySimulation {
                 forces[i][j] = new Vector(0.0, 0.0);
             }
         }
-    
         // Create threads.
         for (int id = 0; id < settings.numWorkers(); id++) {
             workers[id] = new Worker(id, bodies, barrier, forces, settings);
@@ -116,18 +121,17 @@ public class NBodySimulation {
                 System.exit(1);
             }
         }
-
         timer.stopAndPrint();
     }
 
     /*
-     * Generate bodies randomly within set diameter.
+     * Generate bodies randomly within set boundaries.
      */
     private Body[] generateBodies() {
         Body[] bodies = new Body[settings.numBodies()];
         for (int i = 0; i < bodies.length; i++) {
-            double x = rng.nextDouble() * (settings.radius() * 2);
-            double y = rng.nextDouble() * (settings.radius() * 2);
+            double x = rng.nextDouble() * (settings.spaceRadius() * 2);
+            double y = rng.nextDouble() * (settings.spaceRadius() * 2);
             double vx = rng.nextDouble() * 25 - 12.5; 
             double vy = rng.nextDouble() * 25 - 12.5; 
             double mass = settings.mass();
@@ -137,30 +141,40 @@ public class NBodySimulation {
     }
 
     /*
-     * Generate bodies in a donut formation with a huge attracting body in the middle. 
+     * Generate bodies in a ring-like formation with a massive attracting body in the middle. 
      */
-    private Body[] generateBodiesDonut() {
+    private Body[] generateBodiesRing() {
         Body[] bodies = new Body[settings.numBodies()];
-        bodies[0] = new Body(settings.radius(), settings.radius(), 0.0, 0.0, 1e18);
+        bodies = new Body[settings.numBodies()];
+
+        // Create the massive body in the center.
+        double r = settings.spaceRadius();
+        double centerX = r;
+        double centerY = r;
+        double centerVx = 0.0;
+        double centerVy = 0.0;
+        double centerMass = 1e18;
+        bodies[0] = new Body(centerX, centerY, centerVx, centerVy, centerMass);
+
+        // Create the ring of bodies.
         for (int i = 1; i < bodies.length; i++) {
             Vector unit = getRandomUnitVector();
 
-            double r = (settings.radius() * 0.6) + (settings.radius() * 0.8 - settings.radius() * 0.6) * rng.nextDouble();
-            double x = unit.getX() * r + settings.radius();
-            double y = unit.getY() * r + settings.radius();
+            double magnitude = (r * 0.6) + (r * 0.8 - r * 0.6) * rng.nextDouble(); // min + (max - min) * random
+            double x = unit.getX() * magnitude + r;
+            double y = unit.getY() * magnitude + r;
 
-            Vector vel = getOrthogonalVector(unit);
-            double vx = vel.getX() * 10.0;
-            double vy = vel.getY() * 10.0;
+            Vector velocity = getOrthogonalVector(unit);
+            double vx = velocity.getX() * 10.0;
+            double vy = velocity.getY() * 10.0;
             
-            double mass = settings.mass();
-            bodies[i] = new Body(x, y, vx, vy, mass);
+            bodies[i] = new Body(x, y, vx, vy, settings.mass());
         }
         return bodies;
     }
 
     /*
-     * Returns a randomized unitvector.
+     * Returns a randomized unit vector.
      */
     private Vector getRandomUnitVector() {
         double angle = rng.nextDouble() * 2 * Math.PI;

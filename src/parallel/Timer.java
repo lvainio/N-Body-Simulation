@@ -1,47 +1,48 @@
-
-/*
- * Timer class
+/**
+ * High resolution timer used to benchmark the simulation.
+ * 
+ * @author Leo Vainio
  */
 
-public class Timer {
+ public class Timer {
     private long startTime;
     private long endTime;
     
-    /*
-     * Constructor for Timer.
+    /**
+     * Creates a timer and sets the starting time to now.
      */
     public Timer() {
         startTime = System.nanoTime();
         endTime = System.nanoTime();
     }
 
-    /*
-     * Saves start time.
+    /**
+     * Saves the current time as starting time.
      */
     public void start() {
         startTime = System.nanoTime();
     }
 
-    /*
-     * Saves end time and print the elapsed time.
+    /**
+     * Saves ending time and prints the elapsed time.
      */
     public void stopAndPrint() {
         stop();
         print();
     }
 
-    /*
-     * Saves end time.
+    /**
+     * Saves the current time as ending time.
      */
     public void stop() {
         endTime = System.nanoTime();
     }
 
-    /*
+    /**
      * Print the elapsed time.
      */
     public void print() {
-        double elapsedSeconds = (endTime-startTime) / 1_000_000_000.0;
+        double elapsedSeconds = (endTime-startTime) / 1e9;
         System.out.println("> Execution time: " + elapsedSeconds);
     }
 }

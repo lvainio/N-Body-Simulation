@@ -1,4 +1,3 @@
-
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
@@ -18,8 +17,14 @@ public class Worker extends Thread {
 
     private GUI gui; // For thread 0.
 
-    /*
-     * Constructor.
+    /**
+     * Create a mew worker thread.
+     * 
+     * @param id  Id of the worker.
+     * @param bodies  All the bodies being simulated.
+     * @param barrier  Barrier used for synchronizing the workers.
+     * @param forces  Contains all the partial forces.
+     * @param settings  The settings of the simulation.
      */
     public Worker(int id, Body[] bodies, CyclicBarrier barrier, Vector[][] forces, Settings settings) {
         this.id = id;
@@ -33,8 +38,8 @@ public class Worker extends Thread {
         }
     }
 
-    /*
-     * Runs the simulation for a set number of steps.
+    /**
+     * Runs the simulation for set number of steps.
      */
     @Override
     public void run() {

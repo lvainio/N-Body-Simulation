@@ -8,7 +8,7 @@ import java.util.Random;
  * 
  * Run:
  *      java NBodySimulation [default settings]
- *      java NbodySimulation <numBodies> <numSteps> 
+ *      java NBodySimulation <numBodies> <numSteps> 
  *      java NBodySimulation <numBodies> <numSteps> -g -r
  * 
  * The flags can be set after the other arguments:
