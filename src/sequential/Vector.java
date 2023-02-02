@@ -1,4 +1,3 @@
-
 /**
  * 2D vector class.
  * 
@@ -9,11 +8,18 @@ public class Vector {
     private double x;
     private double y;
     
+    /**
+     * Create a vector with specified x and y value.
+     * 
+     * @param x
+     * @param y
+     */
     public Vector(double x, double y) {
         this.x = x;
         this.y = y;
     }
 
+    // ----- GETTERS ----- //
     public double getX() {
         return this.x;
     }
@@ -22,6 +28,7 @@ public class Vector {
         return this.y;
     }
 
+    // ----- SETTERS ----- //
     public void setX(double x) {
         this.x = x;
     }

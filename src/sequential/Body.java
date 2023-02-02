@@ -1,4 +1,3 @@
-
 /**
  * This class stores information about a single body.
  * 
@@ -9,7 +8,7 @@ public class Body {
     private Vector position;
     private Vector velocity;
     private Vector force;
-    private double mass;
+    private final double mass;
 
     public Body(double x, double y, double vx, double vy, double mass) {
         position = new Vector(x, y);
@@ -19,7 +18,6 @@ public class Body {
     }
 
     // ----- GETTERS ----- //
-
     public double getX() {
         return position.getX();
     }
@@ -48,9 +46,7 @@ public class Body {
         return mass;
     }
 
-
     // ----- SETTERS ----- //
-
     public void setX(double x) {
         position.setX(x);
     }

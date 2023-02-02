@@ -1,91 +1,101 @@
 import java.util.Random;
 
 /**
- * Sequential implementation of the n-body problem.
+ * Sequential implementation of brute force n-body simulation.
  * 
- * Usage:
- *      compile: javac *.java
- *      execute: java NbodySimulation <num_bodies> <num_steps> 
- *      graphic: java NBodySimulation <num_bodies> <num_steps> -g
- *      donut: java NBodySimulation <num_bodies> <num_steps> -g -r
+ * Compile (Requires JDK version 14 or later): 
+ *      javac *.java
+ * 
+ * Run:
+ *      java NBodySimulation [default settings]
+ *      java NbodySimulation <numBodies> <numSteps> 
+ *      java NBodySimulation <numBodies> <numSteps> -g -r
+ * 
+ * The flags can be set after the other arguments:
+ *      g: the simulation will be shown in a gui.
+ *      r: the bodies will be generated in a ring formation around a central, more massive body.
  * 
  * @author: Leo Vainio
  */
 
 public class NBodySimulation {
-    // Command line args (initialized with default values).
-    private static int numBodies = 100;
-    private static int numSteps = 100_000;
-    private static boolean guiToggled = false;
-    private static boolean donutToggled = false;
+    private static final int MAX_NUM_BODIES = 240;
+    private static final int MAX_NUM_STEPS = 10_000_000;
 
-    // Constants.
-    static final double RADIUS = 500_000.0;
-    private final double MASS = 100.0;
-    private final double G = 6.67e-11;
-    private final double DT = 1;
+    private static final double DT = 1.0;
+    private static final double G = 6.67e-11;
+    private static final double SPACE_RADIUS = 1000_000;
+    private static final double MASS = 100.0;
 
     private GUI gui;
     private Random rng;
+    private Settings settings;
     private Timer timer;
 
     private Body[] bodies;
 
-    /*
-     * Read command line arguments and start simulation.
+    /**
+     * Parse command line arguments and configure settings of the simulation.
+     * 
+     * @param args  <numBodies> <numSteps> -g -r
      */
     public static void main(String[] args) {
-        // Command line args
+        int numBodies = MAX_NUM_BODIES;
+        int numSteps = MAX_NUM_STEPS;
+        boolean guiToggled = false;
+        boolean ringToggled = false;
+
         try {
             if (args.length >= 1) {
                 numBodies = Integer.parseInt(args[0]);
+                if (numBodies <= 0 || numBodies > MAX_NUM_BODIES) 
+                    numBodies = MAX_NUM_BODIES;
             }
             if (args.length >= 2) {
                 numSteps = Integer.parseInt(args[1]);
+                if (numSteps <= 0 || numSteps > MAX_NUM_STEPS)
+                    numSteps = MAX_NUM_STEPS;
             }
-            if (args.length >= 3) {
-                if (args[2].equals("-g")) { // graphics
+            if (args.length >= 3)
+                if (args[2].equals("-g")) 
                     guiToggled = true;
-                }
-            }
-            if (args.length >= 4) {
-                if (args[3].equals("-r")) { // ring
-                    donutToggled = true;
-                }
-            }
+            if (args.length >= 4) 
+                if (args[3].equals("-r")) 
+                    ringToggled = true;
+
         } catch (NumberFormatException nfe) {
             nfe.printStackTrace();
             System.exit(1);
         }
 
-        System.out.println("\n> Simulating the gravitational n-body problem with:");
-        System.out.println("\t - " + numBodies + " bodies");
-        System.out.println("\t - " + numSteps + " steps\n");
-
-        new NBodySimulation();
+        new NBodySimulation(new Settings(numBodies, numSteps, guiToggled, ringToggled, DT, G, MASS, SPACE_RADIUS));
     }
 
-     /*
-     * Generate bodies, run simulation and time it.
+    /**
+     * Generate bodies and start simulation.
+     * 
+     * @param settings  The settings of the simulation.
      */
-    public NBodySimulation() {
+    public NBodySimulation(Settings settings) {
+        this.settings = settings;
+        System.out.println("\n> Simulating the gravitational n-body problem with the following settings:");
+        System.out.println(settings);
+
         rng = new Random();
         rng.setSeed(System.nanoTime());
 
-        // generate bodies.
-        bodies = new Body[numBodies];
-        if (!donutToggled) {
-            generateBodies();
+        bodies = new Body[settings.numBodies()];
+        if (settings.ringToggled()) {
+            generateBodiesRing();
         } else {
-            generateBodiesDonut();
+            generateBodies();
         }
 
-        // init gui.
-        if (guiToggled) {
-            gui = new GUI("N-body problem: sequential", bodies, donutToggled);
+        if (settings.guiToggled()) {
+            gui = new GUI(bodies, settings);
         }
 
-        // run simulation.
+        // Run simulation.
         timer = new Timer();
         timer.start();
         simulate();
@@ -93,12 +103,12 @@ public class NBodySimulation {
     }
 
     /*
-     * Generate bodies randomly within set diameter.
+     * Generate bodies randomly within set boundaries.
      */
     private void generateBodies() {
         for (int i = 0; i < bodies.length; i++) {
-            double x = rng.nextDouble() * (RADIUS * 2);
-            double y = rng.nextDouble() * (RADIUS * 2);
+            double x = rng.nextDouble() * (settings.spaceRadius() * 2);
+            double y = rng.nextDouble() * (settings.spaceRadius() * 2);
             double vx = rng.nextDouble() * 25 - 12.5; 
             double vy = rng.nextDouble() * 25 - 12.5; 
             double mass = MASS;
@@ -107,28 +117,38 @@ public class NBodySimulation {
     }
 
     /*
-     * Generate bodies in a donut formation with a huge attracting body in the middle. 
+     * Generate bodies in a ring-like formation with a massive attracting body in the center. 
      */
-    private void generateBodiesDonut() {
-        bodies[0] = new Body(RADIUS, RADIUS, 0.0, 0.0, 1e18);
+    private void generateBodiesRing() {
+        bodies = new Body[settings.numBodies()];
+
+        // Create the massive body in the center.
+        double r = settings.spaceRadius();
+        double centerX = r;
+        double centerY = r;
+        double centerVx = 0.0;
+        double centerVy = 0.0;
+        double centerMass = 1e18;
+        bodies[0] = new Body(centerX, centerY, centerVx, centerVy, centerMass);
+
+        // Create the ring of bodies.
         for (int i = 1; i < bodies.length; i++) {
             Vector unit = getRandomUnitVector();
 
-            double r = (RADIUS * 0.6) + (RADIUS * 0.8 - RADIUS * 0.6) * rng.nextDouble();
-            double x = unit.getX() * r + RADIUS;
-            double y = unit.getY() * r + RADIUS;
+            double magnitude = (r * 0.6) + (r * 0.8 - r * 0.6) * rng.nextDouble(); // min + (max - min) * random
+            double x = unit.getX() * magnitude + r;
+            double y = unit.getY() * magnitude + r;
 
-            Vector vel = getOrthogonalVector(unit);
-            double vx = vel.getX() * 10.0;
-            double vy = vel.getY() * 10.0;
+            Vector velocity = getOrthogonalVector(unit);
+            double vx = velocity.getX() * 10.0;
+            double vy = velocity.getY() * 10.0;
             
-            double mass = MASS;
-            bodies[i] = new Body(x, y, vx, vy, mass);
+            bodies[i] = new Body(x, y, vx, vy, settings.mass());
         }
     }
 
     /*
-     * Returns a randomized unitvector.
+     * Returns a randomized unit vector.
      */
     private Vector getRandomUnitVector() {
         double angle = rng.nextDouble() * 2 * Math.PI;
@@ -146,8 +166,8 @@ public class NBodySimulation {
      * Run the simulation for specified number of steps.
      */
     private void simulate() {
-        for (int i = 0; i < numSteps; i++) {
-            if (guiToggled) {
+        for (int i = 0; i < settings.numSteps(); i++) {
+            if (settings.guiToggled()) {
                 gui.repaint();
             }
             calculateForces();
@@ -164,13 +184,15 @@ public class NBodySimulation {
         double dirX;
         double dirY;
 
-        for (int i = 0; i < numBodies - 1; i++) {
-            for (int j = i + 1; j < numBodies; j++) {
+        for (int i = 0; i < settings.numBodies() - 1; i++) {
+            for (int j = i + 1; j < settings.numBodies(); j++) {
                 Body b1 = bodies[i];
                 Body b2 = bodies[j];
 
-                distance = Math.sqrt(Math.pow(b1.getX()-b2.getX(), 2) + Math.pow(b1.getY()-b2.getY(), 2));
-                magnitude = (G * b1.getMass() * b2.getMass()) / (distance * distance);
+                double dx = b1.getX() - b2.getX();
+                double dy = b1.getY() - b2.getY();
+                distance = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+                magnitude = (G * b1.getMass() * b2.getMass()) / Math.pow(distance, 2.0);
                 dirX = b2.getX() - b1.getX();
                 dirY = b2.getY() - b1.getY();
 
@@ -186,7 +208,7 @@ public class NBodySimulation {
      * Calculates new velocity and position for each body.
      */
     private void moveBodies() {
-        for (int i = 0; i < numBodies; i++) {
+        for (int i = 0; i < settings.numBodies(); i++) {
             Body b = bodies[i];
 
             double dVx = (b.getFx() / b.getMass()) * DT;
@@ -203,15 +225,3 @@ public class NBodySimulation {
         }
     }
 }
-
-
-// ## Settings:
-
-// - M=1, D=100 000, DT=1, v=rng*1-0.5
-// - M=100, D=1 000 000, DT=1, v=rng*5-2-5
-// - M=1000, -||-
-// - M=1000, D= 1 000 000, DT=1, v=rng*25-12.5 (this one was nice)
-
-// ## Ring settings:
-
-// - MASS = 100, MASS_CENTER = 100 000 000 000.0, vel*10, DIAMETER=1 000 000, G = 6.67e-4, DT = 1
