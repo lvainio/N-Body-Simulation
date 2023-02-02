@@ -26,7 +26,7 @@ public class NBodySimulation {
 
     private static final double DT = 1.0;
     private static final double G = 6.67e-11;
-    private static final double SPACE_RADIUS = 1000_000;
+    private static final double SPACE_RADIUS = 1_000_000;
     private static final double MASS = 100.0;
     
     private Random rng;
