@@ -2,36 +2,30 @@
 
 ## Usage:
 
-#### compile: 
+### compile: 
 - javac *.java [java 14 or later required]
 
-#### run (sequential): 
+### run (sequential): 
 - java NBodySimulation [default settings]
-- java NbodySimulation <num_bodies> <num_steps> 
-- java NBodySimulation <num_bodies> <num_steps> -g
-- java NBodySimulation <num_bodies> <num_steps> -g -r 
+- java NBodySimulation <numBodies> <numSteps> 
+- java NBodySimulation <numBodies> <numSteps> -g -r
 
-#### run (parallel):
+### run (parallel):
 - java NBodySimulation [default settings]
-- java NbodySimulation <num_bodies> <num_steps> <num_workers>
-- java NBodySimulation <num_bodies> <num_steps> <num_workers> -g
-- java NBodySimulation <num_bodies> <num_steps> <num_workers> -g -r 
+- java NBodySimulation <numBodies> <numSteps> <numWorkers>
+- java NBodySimulation <numBodies> <numSteps> <numWorkers> -g -r
 
-#### run (barnes-hut sequential):
+### run (barnes-hut sequential):
 - java NBodySimulation [default settings]
-- java NbodySimulation <num_bodies> <num_steps> <far_value> \<threshold>
-- java NBodySimulation <num_bodies> <num_steps> <far_value> \<threshold> -g
-- java NBodySimulation <num_bodies> <num_steps> <far_value> \<threshold> -g -r
+- java NBodySimulation <numBodies> <numSteps> <theta>
+- java NBodySimulation <numBodies> <numSteps> <theta> -g -r
 
-#### run (barnes-hut parallel):
+### run (barnes-hut parallel):
 - java NBodySimulation [default settings]
-- java NbodySimulation <num_bodies> <num_steps> <far_value> \<threshold> <num_workers>
-- java NBodySimulation <num_bodies> <num_steps> <far_value> \<threshold> <num_workers> -g
-- java NBodySimulation <num_bodies> <num_steps> <far_value> \<threshold> <num_workers> -g -r
+- java NBodySimulation <numBodies> <numSteps> <theta> <numWorkers>
+- java NBodySimulation <numBodies> <numSteps> <theta> <numWorkers> -g -r
 
-The flags -g -r can be set after the other arguments.
-
-g: the simulation will be shown in a gui.
-
-r: the bodies will be generated in a ring formation around a central, more massive body.
+The flags -g -r can be set after the other arguments:
+- g: the simulation will be shown in a gui.
+- r: the bodies will be generated in a ring formation around a central, more massive body.
 
