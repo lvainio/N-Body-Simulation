@@ -2,38 +2,36 @@ import java.util.Random;
 import java.util.concurrent.CyclicBarrier;
 
 /**
- * Parallel implementation of Barnes-Hut simulation.
+ * Sequential implementation of Barnes-Hut simulation.
  * 
- * Usage:
- *      compile:
- *          - javac *.java
+ * Compile:
+ *      - javac *.java
  * 
- *      run:
- *          - java NBodySimulation [default settings]
- *          - java NBodySimulation <numBodies> <numSteps> <approximationDistance> <numWorkers>
- *          - java NBodySimulation <numBodies> <numSteps> <approximationDistance> <numWorkers> -g -r
+ * Run:
+ *      - java NBodySimulation [default settings]
+ *      - java NBodySimulation <numBodies> <numSteps> <theta> <numWorkers>
+ *      - java NBodySimulation <numBodies> <numSteps> <theta> <numWorkers> -g -r
  * 
- * The approximation distance indicates how far away two bodies have to be to use approximation. If 
- * this value is really large this will turn into a brute force solution. A larger value will yield
- * a more accurate simulation but will be slower.
+ * Theta value 0.5 is the most commonly used value and 0.0 would turn this into 
+ * a brute force simulation. Generally speaking, smaller values yield a more accurate 
+ * simulation but higher values makes for a faster simulation.
  * 
- * The flags -g -r can be set after the first arguments.
- * 
- * -g: the simulation will be shown in a gui.
- * -r: the bodies will be generated in a ring formation around a central, more massive body.
+ * The flags can be set after the other arguments:
+ *      g: the simulation will be shown in a gui.
+ *      r: the bodies will be generated in a ring formation around a central, more massive body.
  *      
  * @author: Leo Vainio
  */
 
 public class NBodySimulation {
-    private static final int MAX_NUM_BODIES = 1_000;
-    private static final int MAX_NUM_STEPS = 100_000_000;
-    private static final double MAX_APPROXIMATION_DISTANCE = 1e10;
+    private static final int MAX_NUM_BODIES = 240;
+    private static final int MAX_NUM_STEPS = 10_000_000;
+    private static final double DEFAULT_THETA = 0.5;
     private static final int MAX_NUM_WORKERS = 16;
 
     private static final double DT = 1.0;
     private static final double G = 6.67e-11;
-    private static final double RADIUS = 500_000;
+    private static final double RADIUS = 1_000_000.0;
     private static final double MASS = 100.0;
 
     private Settings settings;
@@ -51,7 +49,7 @@ public class NBodySimulation {
     public static void main(String[] args) {
         int numBodies = MAX_NUM_BODIES;
         int numSteps = MAX_NUM_STEPS;
-        double approximationDistance = MAX_APPROXIMATION_DISTANCE;
+        double theta = DEFAULT_THETA;
         int numWorkers = MAX_NUM_WORKERS;
         boolean guiToggled = false;
         boolean ringToggled = false;
@@ -68,9 +66,7 @@ public class NBodySimulation {
                     numSteps = MAX_NUM_STEPS;
             }
             if (args.length >= 3) {
-                approximationDistance = Double.parseDouble(args[2]);
-                if (approximationDistance < 0.0 || approximationDistance > MAX_APPROXIMATION_DISTANCE)
-                    approximationDistance = MAX_APPROXIMATION_DISTANCE;
+                theta = Double.parseDouble(args[2]);
             }
             if (args.length >= 4) {
                 numWorkers = Integer.parseInt(args[3]);
@@ -88,7 +84,7 @@ public class NBodySimulation {
             nfe.printStackTrace();
             System.exit(1);
         }
-        new NBodySimulation(new Settings(numBodies, numSteps, approximationDistance, numWorkers, guiToggled, ringToggled, DT, G, MASS, RADIUS));
+        new NBodySimulation(new Settings(numBodies, numSteps, theta, numWorkers, guiToggled, ringToggled, DT, G, MASS, RADIUS));
     }
 
     /**
@@ -98,25 +94,24 @@ public class NBodySimulation {
      */
     public NBodySimulation(Settings settings) {
         this.settings = settings;
-
         System.out.println("\n> Simulating the gravitational n-body problem with the following settings:");
         System.out.println(settings);
 
-        // generate bodies.
         rng = new Random();
         rng.setSeed(System.nanoTime());
+
         if (!settings.ringToggled()) {
             generateBodies();
         } else {
             generateBodiesRing();
         }
 
-        // run simulation. 
+        // run simulation.
         timer = new Timer();
         timer.start();
         Worker[] workers = new Worker[settings.numWorkers()]; 
         CyclicBarrier barrier = new CyclicBarrier(settings.numWorkers());
-        Quadrant quadrant = new Quadrant(settings.universeRadius(), settings.universeRadius(), settings.approximationDistance());
+        Quadrant quadrant = new Quadrant(settings.spaceRadius(), settings.spaceRadius(), settings.spaceRadius() + 100.0);
         QuadTree quadTree = new QuadTree(quadrant, settings);
         for (int id = 0; id < settings.numWorkers(); id++) {
             workers[id] = new Worker(id, bodies, barrier, quadTree, settings);
@@ -139,8 +134,8 @@ public class NBodySimulation {
     private void generateBodies() {
         bodies = new Body[settings.numBodies()];
         for (int i = 0; i < bodies.length; i++) {
-            double x = rng.nextDouble() * (settings.universeRadius() * 2);
-            double y = rng.nextDouble() * (settings.universeRadius() * 2);
+            double x = rng.nextDouble() * (settings.spaceRadius() * 2);
+            double y = rng.nextDouble() * (settings.spaceRadius() * 2);
             double vx = rng.nextDouble() * 25 - 12.5; 
             double vy = rng.nextDouble() * 25 - 12.5; 
             double mass = settings.mass();
@@ -155,7 +150,7 @@ public class NBodySimulation {
         bodies = new Body[settings.numBodies()];
 
         // Create the massive body in the center.
-        double r = settings.universeRadius();
+        double r = settings.spaceRadius();
         double centerX = r;
         double centerY = r;
         double centerVx = 0.0;

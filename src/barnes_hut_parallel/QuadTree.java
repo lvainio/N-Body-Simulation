@@ -20,16 +20,21 @@ public class QuadTree {
 
     private Settings settings;
 
-    /*
-     * Create a quadtree.
+    /**
+     * Create a new quadtree with quadrant as boundaries.
+     * 
+     * @param quadrant  Boundaries of the quadrant.
+     * @param settings  Settings of the simulation.
      */
     public QuadTree(Quadrant quadrant, Settings settings) {
         this.quadrant = quadrant;
         this.settings = settings;
     }
 
-    /*
+    /**
+     * Reset the quadtree and set the outmost quadrant to be the specified quadrant.
      * 
+     * @param quadrant
      */
     public void reset(Quadrant quadrant) {
         this.quadrant = quadrant;
@@ -110,24 +115,27 @@ public class QuadTree {
      * Calculate the force exerted on a single body by traversing the tree and
      * adding up the total force.
      */
-    public void computeForce(Body body) {
+    public void calculateForce(Body body) {
         if (isExternal() && body != this.body && this.body != null) {
             body.addForce(this.body);
         } 
-        else if (groupBody != null) {
-            double distance = Math.sqrt(Math.pow(body.getX()-groupBody.getX(), 2) + Math.pow(body.getY()-groupBody.getY(), 2));
-            if (distance > settings.approximationDistance()) {
+        else if (isInternal()) {
+            double s = quadrant.getRadius() * 2;
+            double dx = body.getX()-groupBody.getX();
+            double dy = body.getY()-groupBody.getY();
+            double d = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+            if (s / d < settings.theta()) {
                 body.addForce(this.groupBody);
             } 
             else {
                 if (northWest != null)
-                    northWest.computeForce(body);
+                    northWest.calculateForce(body);
                 if (northEast != null)
-                    northEast.computeForce(body);
+                    northEast.calculateForce(body);
                 if (southWest != null)
-                    southWest.computeForce(body);
+                    southWest.calculateForce(body);
                 if (southEast != null)
-                    southEast.computeForce(body);
+                    southEast.calculateForce(body);
             }
         }
     }

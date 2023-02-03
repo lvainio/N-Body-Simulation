@@ -2,7 +2,8 @@ import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
 /**
- * worker 0 is special
+ * This class computes the forces of the bodies and moves the bodies. 
+ * Each thread is assigned a subset of the calculations.
  * 
  * @author Leo Vainio
  */
@@ -34,27 +35,9 @@ public class Worker extends Thread {
                     if (settings.guiToggled()) {
                         gui.repaint();
                     }
-                    Quadrant quadrant = new Quadrant(settings.universeRadius(), settings.universeRadius(), settings.approximationDistance());
+                    Quadrant quadrant = getBoundaries();
                     quadTree.reset(quadrant);
                     quadTree.insertBodies(bodies);
-
-                    // TODO: inserting can be parallelised if we consider that bodies in 
-                    // different quadrants can be inserted independently.
-                    // so if thread 0 insert every body in quadrant 1
-                    // thread 1 insert in quadrant 2 and so on.
-
-                    // how to do this with multiple threads tho?
-                    // maybe insert one body first
-                    // then we surely have the 4 quadrants available
-                    // somehoe split the work among the threads in a good way.
-                    // easy when we have 1, 2, 4, 8, threads and so on but a
-                    // bit harder with 3
-                    // maybe in the case of 3 threads we can just skip the third one
-
-                    // One issue with this is that every body needs to be compared to the
-                    // groupbody of the first HUGE quadrant and actually the first body inserted
-                    // will also need to move down a step after a while.
-
                 }
                 barrier.await();
                 computeForces();
@@ -72,11 +55,29 @@ public class Worker extends Thread {
     }
 
     /*
+     * Returns a square quadrant that covers all bodies of the simulation.
+     */
+    private Quadrant getBoundaries() {
+        double min = Double.MAX_VALUE;
+        double max = Double.MIN_VALUE;
+        for (Body body : bodies) {
+            if (body.getX() < min) min = body.getX();
+            if (body.getX() > max) max = body.getX();
+            if (body.getY() < min) min = body.getY();
+            if (body.getY() > max) max = body.getY();
+        }
+        double x = (min + max) / 2;
+        double y = (min + max) / 2;
+        double radius = ((max - min) / 2) + 100.0; // + 100.0 to make sure bodies on the edge are contained.
+        return new Quadrant(x, y, radius);
+    }
+
+    /*
      * Build quadtree and compute total force exerted on each body. 
      */
     private void computeForces() {
         for (int i = id; i < settings.numBodies(); i += settings.numWorkers()) {
-            quadTree.computeForce(bodies[i]);
+            quadTree.calculateForce(bodies[i]);
         }
     }
 
