@@ -179,7 +179,7 @@ public class NBodySimulation {
             if (settings.guiToggled()) {
                 gui.repaint();
             }
-            computeForces();
+            calculateForces();
             moveBodies();
         }
     }
@@ -187,7 +187,7 @@ public class NBodySimulation {
     /*
      * Build quadtree and compute total force exerted on each body.
      */
-    private void computeForces() {
+    private void calculateForces() {
         Quadrant quadrant = getBoundaries();
         QuadTree quadTree = new QuadTree(quadrant, settings);
         quadTree.insertBodies(bodies);

@@ -113,7 +113,7 @@ public class QuadTree {
         if (isExternal() && body != this.body && this.body != null) {
             body.addForce(this.body);
         } 
-        else if (groupBody != null) {
+        else if (isInternal()) {
             double s = quadrant.getRadius() * 2;
             double dx = body.getX()-groupBody.getX();
             double dy = body.getY()-groupBody.getY();
