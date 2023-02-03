@@ -37,6 +37,11 @@ public class Timer {
         endTime = System.nanoTime();
     }
 
+    // TODO: remove
+    public double getElapsed() {
+        return (endTime-startTime) / 1e9;
+    }
+
     /*
      * Print the elapsed time.
      */

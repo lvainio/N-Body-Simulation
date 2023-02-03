@@ -84,7 +84,7 @@ public class NBodySimulation {
     public NBodySimulation(Settings settings) {
         this.settings = settings;
         System.out.println("\n> Simulating the gravitational n-body problem with the following settings:");
-        System.out.println("\t- " + settings);
+        System.out.println(settings);
 
         rng = new Random();
         rng.setSeed(System.nanoTime());

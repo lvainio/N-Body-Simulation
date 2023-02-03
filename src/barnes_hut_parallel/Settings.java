@@ -28,6 +28,6 @@
             "\t- DT=" + DT + ",\n" +
             "\t- G=" + G + ",\n" +
             "\t- mass=" + mass + ",\n" +
-            "\t- universeRadius=" + spaceRadius + ",\n";
+            "\t- spaceRadius=" + spaceRadius + ",\n";
     }
 }
