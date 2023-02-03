@@ -20,16 +20,21 @@ public class QuadTree {
 
     private Settings settings;
 
-    /*
-     * Create a quadtree.
+    /**
+     * Create a new quadtree with quadrant as boundaries.
+     * 
+     * @param quadrant  Boundaries of the quadrant.
+     * @param settings  Settings of the simulation.
      */
     public QuadTree(Quadrant quadrant, Settings settings) {
         this.quadrant = quadrant;
         this.settings = settings;
     }
 
-    /*
-     * Insert an array of bodies into the quadtree.
+    /**
+     * Insert all the bodies into the quadtree.
+     * 
+     * @param bodies  All the bodies of the simulation.
      */
     public void insertBodies(Body[] bodies) {
         for (Body body : bodies) {
@@ -41,12 +46,8 @@ public class QuadTree {
      * Insert a single body into the tree. 
      */
     private void insert(Body body) {
-        // Do not add a body that is not in this quadrant.
-        if (!this.quadrant.containsBody(body)) {
-            return;
-        }
         // External empty node.
-        else if (this.body == null) {
+        if (this.body == null) {
             this.body = body;
         } 
         // Internal node.
@@ -78,23 +79,25 @@ public class QuadTree {
     /*
      * Insert the body recursively into the correct quadrant.
      */
-    private void insertInQuadrant(Body b) {
-        if (northWest.getQuadrant().containsBody(b)) {
-            northWest.insert(b);
+    private void insertInQuadrant(Body body) {
+        if (northWest.getQuadrant().containsBody(body)) {
+            northWest.insert(body);
         } 
-        else if (northEast.getQuadrant().containsBody(b)) {
-            northEast.insert(b);
+        else if (northEast.getQuadrant().containsBody(body)) {
+            northEast.insert(body);
         } 
-        else if (southWest.getQuadrant().containsBody(b)) {
-            southWest.insert(b);
+        else if (southWest.getQuadrant().containsBody(body)) {
+            southWest.insert(body);
         } 
-        else if (southEast.getQuadrant().containsBody(b)) {
-            southEast.insert(b);
+        else if (southEast.getQuadrant().containsBody(body)) {
+            southEast.insert(body);
         }
     }
 
-    /*
-     * Calculate the forces exerted on each body.
+    /**
+     * Calculate the forces exerted on all bodies.
+     * 
+     * @param bodies  All the bodies of the simulation.
      */
     public void calculateForces(Body[] bodies) {
         for (Body body : bodies) {
@@ -112,8 +115,10 @@ public class QuadTree {
         } 
         else if (groupBody != null) {
             double s = quadrant.getRadius() * 2;
-            double d = Math.sqrt(Math.pow(body.getX()-groupBody.getX(), 2) + Math.pow(body.getY()-groupBody.getY(), 2));
-            if (s / d < settings.threshold()) {
+            double dx = body.getX()-groupBody.getX();
+            double dy = body.getY()-groupBody.getY();
+            double d = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+            if (s / d < settings.theta()) {
                 body.addForce(this.groupBody);
             } 
             else {

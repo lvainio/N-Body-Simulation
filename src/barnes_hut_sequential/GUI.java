@@ -24,8 +24,11 @@ class GUI extends JFrame {
 
     private Settings settings;
 
-    /*
-     * Constructor for GUI object.  
+    /**
+     * Create the GUI.
+     * 
+     * @param bodies  All the bodies being simulated.
+     * @param settings  The settings of the simulation.
      */
     public GUI(Body[] bodies, Settings settings) {
         System.setProperty("sun.java2d.opengl", "true"); // Enable video acceleration.
@@ -55,15 +58,15 @@ class GUI extends JFrame {
     }
 
     /*
-     * repaint gets called in every step of the simulation to update the position of the bodies
-     * on the screen.
+     * This method gets called in every step of the simulation to update the position
+     * of the bodies on the screen.
      */
     @Override
     public void repaint() {
         panel.repaint();
     }
 
-    /*
+     /*
      * This class handles drawing the bodies onto the canvas in each step of the simulation.
      */
     class Panel extends JPanel {
@@ -73,7 +76,7 @@ class GUI extends JFrame {
             g.fillRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
 
             // draw bodies.
-            double scale = 800.0 / (settings.radius()*2);
+            double scale = 800.0 / (settings.spaceRadius()*2);
             int i = 0;
             if (settings.ringToggled()) {
                 Body body = bodies[0];

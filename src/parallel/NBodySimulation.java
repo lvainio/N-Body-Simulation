@@ -77,9 +77,9 @@ public class NBodySimulation {
     }
 
     /**
-     * Parse command line arguments and configure settings of the simulation.
+     * Generate bodies and start simulation.
      * 
-     * @param args  <numBodies> <numSteps> -g -r
+     * @param settings  The settings of the simulation.
      */
     public NBodySimulation(Settings settings) {
         this.settings = settings;
