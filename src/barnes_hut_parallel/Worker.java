@@ -1,5 +1,6 @@
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This class computes the forces of the bodies and moves the bodies. 
@@ -11,18 +12,17 @@ import java.util.concurrent.CyclicBarrier;
 public class Worker extends Thread {    
     private int id;
     private Body[] bodies;
-    private CyclicBarrier barrier;    
+    private CyclicBarrier barrier;   
+    private AtomicInteger counter; 
     private GUI gui;
     private QuadTree quadTree; 
     private Settings settings;
 
-    Timer t = new Timer();
-    double time = 0.0;
-
-    public Worker(int id, Body[] bodies, CyclicBarrier barrier, QuadTree quadTree, Settings settings) {
+    public Worker(int id, Body[] bodies, CyclicBarrier barrier, AtomicInteger counter, QuadTree quadTree, Settings settings) {
         this.id = id;
         this.bodies = bodies;
         this.barrier = barrier;
+        this.counter = counter;
         this.quadTree = quadTree;
         this.settings = settings;
         if (id == 0 && settings.guiToggled()) {
@@ -35,31 +35,32 @@ public class Worker extends Thread {
         try {
             for (int i = 0; i < settings.numSteps(); i++) {
                 barrier.await();
-
-                // maybe insert can be parallelized by having one thread inserting all the bodies into level one
-                // then grabbing nw, ne, sw, se and then inserting the bodies in their corresponding quadrant
-                // recursively. 
-
-                // is the below insertions dependent on the insertion in above? i dont think so.
-
-                // then we could have a mutex for each of the four quadrants and a counter variable
-                // so we go through all bodies and increment counter so each thread works on one body
-                // at a time.
-
-                // we would need 4 mutexes + 1 counter mutex. we would need getters for each quadrant. 
-
-                // we need to make sure of correctness.
-
                 if (id == 0) {
                     if (settings.guiToggled()) {
                         gui.repaint();
                     }
                     Quadrant quadrant = getBoundaries();
-                    quadTree.reset(quadrant);
-                    quadTree.insertBodies(bodies);
+                    quadTree.reset(quadrant, bodies);
                 }
                 barrier.await();
-                computeForces();
+                int quadIdx = counter.getAndIncrement();
+                while (quadIdx < 4) {
+                    if (quadIdx == 0) {
+                        quadTree.getNW().insertBodies(bodies);
+                    } else if (quadIdx == 1) {
+                        quadTree.getNE().insertBodies(bodies);
+                    } else if (quadIdx == 2) {
+                        quadTree.getSW().insertBodies(bodies);
+                    } else if (quadIdx == 3) {
+                        quadTree.getSE().insertBodies(bodies);
+                    }
+                    quadIdx = counter.getAndIncrement();
+                }
+                barrier.await();
+                if (id == 0) {
+                    counter.set(0);
+                }
+                calculateForces();
                 moveBodies();
             }
         } catch (InterruptedException ie) {
@@ -92,7 +93,7 @@ public class Worker extends Thread {
     /*
      * Build quadtree and compute total force exerted on each body. 
      */
-    private void computeForces() {
+    private void calculateForces() {
         for (int i = id; i < settings.numBodies(); i += settings.numWorkers()) {
             quadTree.calculateForce(bodies[i]);
         }

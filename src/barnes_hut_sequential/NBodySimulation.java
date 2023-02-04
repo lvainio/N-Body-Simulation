@@ -23,7 +23,7 @@ import java.util.Random;
  */
 
 public class NBodySimulation {
-    private static final int MAX_NUM_BODIES = 240;
+    private static final int MAX_NUM_BODIES = 500;
     private static final int MAX_NUM_STEPS = 10_000_000;
     private static final double DEFAULT_THETA = 0.5;
 

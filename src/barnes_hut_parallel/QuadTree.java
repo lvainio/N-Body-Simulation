@@ -36,7 +36,7 @@ public class QuadTree {
      * 
      * @param quadrant
      */
-    public void reset(Quadrant quadrant) {
+    public void reset(Quadrant quadrant, Body[] bodies) {
         this.quadrant = quadrant;
         northWest = null;
         northEast = null;
@@ -44,6 +44,21 @@ public class QuadTree {
         southEast = null;
         groupBody = null;
         body = null;
+
+        Body b0 = bodies[0];
+        groupBody = new Body(b0.getX(), b0.getY(), 0, 0, b0.getMass(), settings);
+        for (int i = 1; i < bodies.length; i++) {
+            groupBody.addBody(bodies[i]);
+        }
+
+        double x = quadrant.getX();
+        double y = quadrant.getY();
+        double r = quadrant.getRadius();
+
+        northWest = new QuadTree(new Quadrant(x - r/2.0, y - r/2.0, r/2.0), settings);
+        northEast = new QuadTree(new Quadrant(x + r/2.0, y - r/2.0, r/2.0), settings);
+        southWest = new QuadTree(new Quadrant(x - r/2.0, y + r/2.0, r/2.0), settings);
+        southEast = new QuadTree(new Quadrant(x + r/2.0, y + r/2.0, r/2.0), settings);
     }
 
     /*
@@ -167,5 +182,22 @@ public class QuadTree {
     */
     private Quadrant getQuadrant() {
         return this.quadrant;
+    }
+
+    // ----- GETTERS ----- // 
+    public QuadTree getNW() {
+        return northWest;
+    }
+
+    public QuadTree getNE() {
+        return northEast;
+    }
+
+    public QuadTree getSW() {
+        return southWest;
+    }
+
+    public QuadTree getSE() {
+        return southEast;
     }
 }

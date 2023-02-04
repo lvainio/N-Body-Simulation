@@ -1,5 +1,6 @@
 import java.util.Random;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Sequential implementation of Barnes-Hut simulation.
@@ -24,7 +25,7 @@ import java.util.concurrent.CyclicBarrier;
  */
 
 public class NBodySimulation {
-    private static final int MAX_NUM_BODIES = 240;
+    private static final int MAX_NUM_BODIES = 500;
     private static final int MAX_NUM_STEPS = 10_000_000;
     private static final double DEFAULT_THETA = 0.5;
     private static final int MAX_NUM_WORKERS = 16;
@@ -111,10 +112,10 @@ public class NBodySimulation {
         timer.start();
         Worker[] workers = new Worker[settings.numWorkers()]; 
         CyclicBarrier barrier = new CyclicBarrier(settings.numWorkers());
-        Quadrant quadrant = new Quadrant(settings.spaceRadius(), settings.spaceRadius(), settings.spaceRadius() + 100.0);
-        QuadTree quadTree = new QuadTree(quadrant, settings);
+        AtomicInteger counter = new AtomicInteger(0);
+        QuadTree quadTree = new QuadTree(null, settings);
         for (int id = 0; id < settings.numWorkers(); id++) {
-            workers[id] = new Worker(id, bodies, barrier, quadTree, settings);
+            workers[id] = new Worker(id, bodies, barrier, counter, quadTree, settings);
             workers[id].start();
         }
         for (int id = 0; id < settings.numWorkers(); id++) {
