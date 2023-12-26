@@ -1,4 +1,4 @@
-# n_body_simulation
+# N-Body Simulation
 
 ## Usage:
 
