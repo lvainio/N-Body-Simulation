@@ -3,7 +3,7 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Sequential implementation of Barnes-Hut simulation.
+ * Parallel implementation of Barnes-Hut simulation.
  * 
  * Compile:
  *      - javac *.java
